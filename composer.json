@@ -1,0 +1,8 @@
+{
+    "name": "imamuseum/harvester",
+    "autoload": {
+        "psr-4": {
+            "Imamuseum\\Harvester\\": "src/"
+        }
+    }
+}
