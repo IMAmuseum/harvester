@@ -60,26 +60,18 @@ class HarvesterCommand extends Command
         $this->output->progressStart($response->total);
 
         foreach ($objectIDs as $objectID) {
-            // populate all objects with just the object_uid
-            $object = $this->harvester->createOrUpdateObject($objectID);
+            // run the intial update on object to populate all fields
+            $this->harvester->initialOrUpdateObject($objectID);
+
             // errors will be logged to console
             if (isset($object['error'])) {
                 $this->error($object['error']);
             }
-        }
-
-        // step through all objects
-        foreach ($objectIDs as $objectID) {
-            // run the intial update on object to populate all fields
-            $this->harvester->initialOrUpdateObject($objectID);
-
-            // Queue command to process images
-            // $command = new ProcessImages($object->uid);
-            // $this->dispatch($command);
 
             // advance progress display in console
             $this->output->progressAdvance();
         }
+
 
         // calculate time elapsed for command
         $end = microtime(true);

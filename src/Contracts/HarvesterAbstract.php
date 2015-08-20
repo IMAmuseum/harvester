@@ -5,17 +5,6 @@ namespace Imamuseum\Harvester\Contracts;
 
 abstract class HarvesterAbstract {
 
-    public function createOrUpdateObject($objectID)
-    {
-        try {
-            $object = \Imamuseum\Harvester\Models\Object::firstOrNew(['object_uid' => $objectID]);
-            $object->object_uid = $objectID;
-            $object->save();
-        } catch(\Illuminate\Database\QueryException $e) {
-            return ["error" => $e];
-        }
-    }
-
     public function createTypes()
     {
         // get config array for harvester types

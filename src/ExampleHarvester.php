@@ -33,7 +33,7 @@ class ExampleHarvester extends HarvesterAbstract implements HarvesterInterface
         $faker = \Faker\Factory::create();
         // get all data for a specific object $results
         // find object
-        $object = Object::where('object_uid', '=', $uid)->firstOrFail();
+        $object = Object::firstOrNew(['object_uid' => $uid]);
         // add data to object
         $object->object_title = $faker->catchPhrase;
         // save object

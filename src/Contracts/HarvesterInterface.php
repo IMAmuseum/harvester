@@ -12,8 +12,7 @@ interface HarvesterInterface
     public function updateIDs();
     public function initialOrUpdateObject($uid);
 
-    // Part of the HavesterTrait
-    public function createOrUpdateObject($objectID);
+    // Part of the HavesterAbstract
     public function createTypes();
     public function createOrFindFields($model, $fields);
     public function createOrUpdateTexts($objectID, $texts);
