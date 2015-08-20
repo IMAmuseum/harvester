@@ -43,6 +43,11 @@ class HarvesterCommand extends Command
      */
     public function handle()
     {
+        if ($this->option('initial')) {
+            // do not log inital sync
+            config(['harvester.log' => false]);
+        }
+
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
         if ($this->option('update')) $this->info('Getting all updated object IDs.');
         // begin timer
