@@ -10,7 +10,7 @@ class EloquentTransactionLog
 {
     public static function log($table, $event, $itemID)
     {
-        $log = new \App\Models\Transaction();
+        $log = new \Imamuseum\Harvester\Models\Transaction();
         $log->action = $event;
         $log->table_id = $itemID;
         $log->table = $table;
