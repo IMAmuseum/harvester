@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Object extends Model
 {
+    use \Imamuseum\Harvester\Traits\TransactionLogTrait;
+
     protected $guarded = [];
 
     public function actors()
@@ -40,7 +42,7 @@ class Object extends Model
 
     public function deaccession()
     {
-    	return $this->hasOne('Imamuseum\Harvester\Models\Deaccession');
+        return $this->hasOne('Imamuseum\Harvester\Models\Deaccession');
     }
 
 }
