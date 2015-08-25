@@ -27,46 +27,46 @@ abstract class HarvesterAbstract {
     // return an array of ids
     public function createOrFindFields($model, $fields)
     {
-        $fieldIDs = null;
+        $field_ids = null;
         foreach($fields as $type => $contents) {
             //get type id for content
-            $typeID = \DB::table($model.'_types')->where($model.'_type_name', '=', $type)->pluck('id');
+            $type_id = \DB::table($model.'_types')->where($model.'_type_name', '=', $type)->pluck('id');
             foreach ($contents as $key => $content) {
                 // if content is not a blank string
                 if ($content != '') {
                     // make all fields lowercase
                     $content = strtolower($content);
-                    // check if contentID already exists
-                    $contentID = \DB::table(str_plural($model))->where($model.'_type_id', '=', $typeID)->where($model, '=', $content)->pluck('id');
+                    // check if content_id already exists
+                    $content_id = \DB::table(str_plural($model))->where($model.'_type_id', '=', $type_id)->where($model, '=', $content)->pluck('id');
 
                     // in no content insert new content
-                    if (is_null($contentID)) {
+                    if (is_null($content_id)) {
                         \DB::table(str_plural($model))->insert([
                             $model => $content,
-                            $model.'_type_id' =>  $typeID
+                            $model.'_type_id' =>  $type_id
                         ]);
                         // retrieve newly created content ID
-                        $newContentID = \DB::table(str_plural($model))->where($model.'_type_id', '=', $typeID)->where($model, '=', $content)->pluck('id');
+                        $new_content_id = \DB::table(str_plural($model))->where($model.'_type_id', '=', $type_id)->where($model, '=', $content)->pluck('id');
                         // append new id to field ID array
-                        $fieldIDs[] = $newContentID;
+                        $field_ids[] = $new_content_id;
                     }
 
                     // if content already exists add field ID to array
-                    if (! is_null($contentID)) {
-                        $fieldIDs[] = $contentID;
+                    if (! is_null($content_id)) {
+                        $field_ids[] = $content_id;
                     }
                 }
             }
         }
-        return $fieldIDs;
+        return $field_ids;
     }
 
-    public function createOrUpdateTexts($objectID, $texts)
+    public function createOrUpdateTexts($object_id, $texts)
     {
         foreach ($texts as $key => $value) {
             if ($value != '') {
-                $textTypeID = \DB::table('text_types')->where('text_type_name', '=', $key)->pluck('id');
-                $text = \Imamuseum\Harvester\Models\Text::where('text_type_id', '=', $textTypeID)->where('object_id', '=', $objectID)->first();
+                $text_type_id = \DB::table('text_types')->where('text_type_name', '=', $key)->pluck('id');
+                $text = \App\Models\Text::where('text_type_id', '=', $text_type_id)->where('object_id', '=', $object_id)->first();
 
                 if ($text) {
                     $text->text = $value;
@@ -75,8 +75,8 @@ abstract class HarvesterAbstract {
                 if (!$text) {
                     $text = new \App\Models\Text();
                     $text->text = $value;
-                    $text->object_id = $objectID;
-                    $text->text_type_id = $textTypeID;
+                    $text->object_id = $object_id;
+                    $text->text_type_id = $text_type_id;
                 }
 
                 $text->save();
@@ -84,15 +84,14 @@ abstract class HarvesterAbstract {
         }
     }
 
-    public function createAssets($objectID, $images)
+    public function createOrUpdateAssets($asset_type_id, $object_id, $images)
     {
-        $sequence = 1;
+        $sequence = 0;
         foreach ($images as $image) {
-            $asset = new \Imamuseum\Harvester\Models\Asset();
-            $asset->asset_type_id = \DB::table('asset_types')->where('asset_type_name', '=', 'piction')->pluck('id');
-            $asset->object_id = $objectID;
+            $asset = \App\Models\Asset::firstOrNew(['asset_file_uri' => $image->source_url]);
+            $asset->asset_type_id = $asset_type_id;
+            $asset->object_id = $object_id;
             $asset->asset_sequence = $sequence;
-            $asset->asset_file_uri = $image->source_url;
             $asset->save();
             $sequence++;
         }
@@ -102,9 +101,9 @@ abstract class HarvesterAbstract {
     {
         $actorSync = null;
         if ($actors != null) {
-            $sequence = 1;
+            $sequence = 0;
             foreach ($actors as $actorData) {
-                $actor = \Imamuseum\Harvester\Models\Actor::firstOrNew(['actor_uid' => $actorData['name']]);
+                $actor = \App\Models\Actor::firstOrNew(['actor_uid' => $actorData['name']]);
                 $actor->actor_uid = $actorData['name'];
                 $actor->actor_name_display = $actorData['name'];
                 $actor->actor_name_first = isset($actorData['name_first']) ? $actorData['name_first'] : null;

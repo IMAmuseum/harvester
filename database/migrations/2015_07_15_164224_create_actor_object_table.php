@@ -18,8 +18,8 @@ class CreateActorObjectTable extends Migration
             $table->foreign('object_id')->references('id')->on('objects')->onDelete('cascade');
             $table->integer('actor_id')->unsigned()->index();
             $table->foreign('actor_id')->references('id')->on('actors')->onDelete('cascade');
-            $table->integer('sequence')->default(1);
-            $table->string('role');
+            $table->integer('sequence')->default(0);
+            $table->string('role')->nullable();
         });
     }
 

@@ -31,6 +31,8 @@ class HarvesterServiceProvider extends ServiceProvider
      */
     public function register()
     {
+        include __DIR__.'/Http/routes.php';
+
         $this->publishes([
             __DIR__.'/../config/harvester.php' => config_path('harvester.php'),
         ], 'config');

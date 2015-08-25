@@ -45,4 +45,9 @@ class Object extends Model
         return $this->hasOne('Imamuseum\Harvester\Models\Deaccession');
     }
 
+    public function transactions()
+    {
+        return $this->hasMany('Imamuseum\Harvester\Models\Transaction', 'table_id');
+    }
+
 }

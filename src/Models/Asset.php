@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Asset extends Model
 {
+    use \Imamuseum\Harvester\Traits\TransactionLogTrait;
+
+    protected $guarded = [];
+
     public function object()
     {
     	return $this->hasOne('Imamuseum\Harvester\Models\Object');
