@@ -19,7 +19,7 @@ class CreateAssetsTable extends Migration
             $table->integer('asset_sequence');
             $table->string('asset_title');
             $table->text('asset_description');
-            $table->string('asset_file_uri');
+            $table->string('asset_file_uri')->unique();
             $table->timestamps();
         });
     }
