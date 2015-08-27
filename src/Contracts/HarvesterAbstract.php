@@ -92,6 +92,8 @@ abstract class HarvesterAbstract {
             $asset->asset_type_id = $asset_type_id;
             $asset->object_id = $object_id;
             $asset->asset_sequence = $sequence;
+            $asset->asset_title = isset($actorData['asset_title']) ? $actorData['asset_title'] : null;
+            $asset->asset_description = isset($actorData['asset_desc']) ? $actorData['asset_desc'] : null;
             $asset->save();
             $sequence++;
         }
@@ -110,6 +112,12 @@ abstract class HarvesterAbstract {
                 $actor->actor_name_last = isset($actorData['name_last']) ? $actorData['name_last'] : null;
                 $actor->actor_name_middle = isset($actorData['name_middle']) ? $actorData['name_middle'] : null;
                 $actor->actor_name_suffix = isset($actorData['name_suffix']) ? $actorData['name_suffix'] : null;
+                $actor->birth_date = isset($actorData['birth_date']) ? $actorData['birth_date'] : null;
+                $actor->birth_location = isset($actorData['birth_location']) ? $actorData['birth_location'] : null;
+                $actor->work_location = isset($actorData['work_location']) ? $actorData['work_location'] : null;
+                $actor->death_date = isset($actorData['death_date']) ? $actorData['death_date'] : null;
+                $actor->death_location = isset($actorData['death_location']) ? $actorData['death_location'] : null;
+                $actor->actor_custom = isset($actorData['actor_custom']) ? $actorData['actor_custom'] : null;
                 $actor->save();
 
                 $actorSync[$actor->id] = ['role' => $actorData['role'], 'sequence' => $sequence];
