@@ -64,14 +64,14 @@ abstract class HarvesterAbstract {
         foreach ($texts as $key => $value) {
             if ($value != '') {
                 $text_type_id = \DB::table('text_types')->where('text_type_name', '=', $key)->pluck('id');
-                $text = \App\Models\Text::where('text_type_id', '=', $text_type_id)->where('object_id', '=', $object_id)->first();
+                $text = \Imamuseum\Harvester\Models\Text::where('text_type_id', '=', $text_type_id)->where('object_id', '=', $object_id)->first();
 
                 if ($text) {
                     $text->text = $value;
                 }
 
                 if (!$text) {
-                    $text = new \App\Models\Text();
+                    $text = new \Imamuseum\Harvester\Models\Text();
                     $text->text = $value;
                     $text->object_id = $object_id;
                     $text->text_type_id = $text_type_id;
@@ -86,7 +86,7 @@ abstract class HarvesterAbstract {
     {
         $sequence = 0;
         foreach ($images as $image) {
-            $asset = \App\Models\Asset::firstOrNew(['asset_file_uri' => $image->source_url]);
+            $asset = \Imamuseum\Harvester\Models\Asset::firstOrNew(['asset_file_uri' => $image->source_url]);
             $asset->asset_type_id = $asset_type_id;
             $asset->object_id = $object_id;
             $asset->asset_sequence = $sequence;
@@ -103,7 +103,7 @@ abstract class HarvesterAbstract {
         if ($actors != null) {
             $sequence = 0;
             foreach ($actors as $actorData) {
-                $actor = \App\Models\Actor::firstOrNew(['actor_uid' => $actorData['name']]);
+                $actor = \Imamuseum\Harvester\Models\Actor::firstOrNew(['actor_uid' => $actorData['name']]);
                 $actor->actor_uid = $actorData['name'];
                 $actor->actor_name_display = $actorData['name'];
                 $actor->actor_name_first = isset($actorData['name_first']) ? $actorData['name_first'] : null;
