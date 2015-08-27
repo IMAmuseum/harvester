@@ -34,8 +34,6 @@ abstract class HarvesterAbstract {
             foreach ($contents as $key => $content) {
                 // if content is not a blank string
                 if ($content != '') {
-                    // make all fields lowercase
-                    $content = strtolower($content);
                     // check if content_id already exists
                     $content_id = \DB::table(str_plural($model))->where($model.'_type_id', '=', $type_id)->where($model, '=', $content)->pluck('id');
 
