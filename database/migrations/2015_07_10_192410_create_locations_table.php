@@ -16,7 +16,6 @@ class CreateLocationsTable extends Migration
             $table->increments('id');
             $table->integer('location_type_id')->unsigned();
             $table->string('location');
-            $table->text('location_desc')->nullable();
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 10, 8)->nullable();
             $table->unique(['location', 'location_type_id']);

@@ -18,7 +18,6 @@ class CreateDatesTable extends Migration
             $table->string('date');
             $table->timestamp('date_at')->nullable();
             $table->unique(['date', 'date_type_id']);
-            $table->timestamps();
         });
     }
 

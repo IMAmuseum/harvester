@@ -6,6 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Date extends Model
 {
+    public $timestamps = false;
+
+    protected $dates = ['date_at'];
+
     public function objects()
     {
         return $this->belongsToMany('Imamuseum\Harvester\Models\Object');

@@ -24,64 +24,6 @@ abstract class HarvesterAbstract {
         }
     }
 
-    // return an array of ids
-    public function createOrFindFields($model, $fields)
-    {
-        $field_ids = null;
-        foreach($fields as $type => $contents) {
-            //get type id for content
-            $type_id = \DB::table($model.'_types')->where($model.'_type_name', '=', $type)->pluck('id');
-            foreach ($contents as $key => $content) {
-                // if content is not a blank string
-                if ($content != '') {
-                    // check if content_id already exists
-                    $content_id = \DB::table(str_plural($model))->where($model.'_type_id', '=', $type_id)->where($model, '=', $content)->pluck('id');
-
-                    // in no content insert new content
-                    if (is_null($content_id)) {
-                        \DB::table(str_plural($model))->insert([
-                            $model => $content,
-                            $model.'_type_id' =>  $type_id
-                        ]);
-                        // retrieve newly created content ID
-                        $new_content_id = \DB::table(str_plural($model))->where($model.'_type_id', '=', $type_id)->where($model, '=', $content)->pluck('id');
-                        // append new id to field ID array
-                        $field_ids[] = $new_content_id;
-                    }
-
-                    // if content already exists add field ID to array
-                    if (! is_null($content_id)) {
-                        $field_ids[] = $content_id;
-                    }
-                }
-            }
-        }
-        return $field_ids;
-    }
-
-    public function createOrUpdateTexts($object_id, $texts)
-    {
-        foreach ($texts as $key => $value) {
-            if ($value != '') {
-                $text_type_id = \DB::table('text_types')->where('text_type_name', '=', $key)->pluck('id');
-                $text = \Imamuseum\Harvester\Models\Text::where('text_type_id', '=', $text_type_id)->where('object_id', '=', $object_id)->first();
-
-                if ($text) {
-                    $text->text = $value;
-                }
-
-                if (!$text) {
-                    $text = new \Imamuseum\Harvester\Models\Text();
-                    $text->text = $value;
-                    $text->object_id = $object_id;
-                    $text->text_type_id = $text_type_id;
-                }
-
-                $text->save();
-            }
-        }
-    }
-
     public function createOrUpdateAssets($asset_type_id, $object_id, $images)
     {
         $sequence = 0;
@@ -122,6 +64,114 @@ abstract class HarvesterAbstract {
                 $sequence++;
             }
             return $actorSync;
+        }
+    }
+
+    public function createOrFindTerms($fields)
+    {
+        $field_ids = null;
+        foreach($fields as $type => $contents) {
+            $type_id = \DB::table('term_types')->where('term_type_name', '=', $type)->pluck('id');
+            foreach ($contents as $content) {
+                if ($content != '') {
+                    $content_id = \DB::table('terms')->where('term_type_id', '=', $type_id)->where('term', '=', $content)->pluck('id');
+
+                    // in no content insert new content
+                    if (is_null($content_id)) {
+                        $new_content_id = \DB::table('terms')->insertGetId([
+                            'term' => $content,
+                            'term_type_id' =>  $type_id
+                        ]);
+                        // append new id to field ID array
+                        $field_ids[] = $new_content_id;
+                    }
+
+                    // if content already exists add field ID to array
+                    if (! is_null($content_id)) {
+                        $field_ids[] = $content_id;
+                    }
+                }
+            }
+        }
+        return $field_ids;
+    }
+
+    public function createOrFindDates($fields)
+    {
+        $field_ids = null;
+        foreach($fields as $type => $contents) {
+            $type_id = \DB::table('date_types')->where('date_type_name', '=', $type)->pluck('id');
+
+            if ($contents['date'] != '') {
+                $content_id = \DB::table('dates')->where('date_type_id', '=', $type_id)->where('date', '=', $contents['date'])->pluck('id');
+
+                if (is_null($content_id)) {
+                    $new_content_id = \DB::table('dates')->insertGetId([
+                        'date' => $contents['date'],
+                        'date_at' => isset($contents['date_at']) ? $contents['date_at'] : null,
+                        'date_type_id' =>  $type_id
+                    ]);
+                    // append new id to field ID array
+                    $field_ids[] = $new_content_id;
+                }
+
+                // if content already exists add field ID to array
+                if (! is_null($content_id)) {
+                    $field_ids[] = $content_id;
+                }
+            }
+        }
+        return $field_ids;
+    }
+
+    public function createOrFindLocations($fields)
+    {
+        $field_ids = null;
+        foreach($fields as $type => $contents) {
+            $type_id = \DB::table('location_types')->where('location_type_name', '=', $type)->pluck('id');
+            if ($contents['location'] != '') {
+                $content_id = \DB::table('locations')->where('location_type_id', '=', $type_id)->where('location', '=', $contents['location'])->pluck('id');
+
+                if (is_null($content_id)) {
+                    $new_content_id = \DB::table('locations')->insertGetId([
+                        'location' => $contents['location'],
+                        'latitude' => isset($contents['latitude']) ? $contents['latitude'] : null,
+                        'longitude' => isset($contents['longitude']) ? $contents['longitude'] : null,
+                        'location_type_id' =>  $type_id
+                    ]);
+                    // append new id to field ID array
+                    $field_ids[] = $new_content_id;
+                }
+
+                // if content already exists add field ID to array
+                if (! is_null($content_id)) {
+                    $field_ids[] = $content_id;
+                }
+            }
+        }
+        return $field_ids;
+    }
+
+    public function createOrUpdateTexts($object_id, $texts)
+    {
+        foreach ($texts as $key => $value) {
+            if ($value != '') {
+                $text_type_id = \DB::table('text_types')->where('text_type_name', '=', $key)->pluck('id');
+                $text = \Imamuseum\Harvester\Models\Text::where('text_type_id', '=', $text_type_id)->where('object_id', '=', $object_id)->first();
+
+                if ($text) {
+                    $text->text = $value;
+                }
+
+                if (!$text) {
+                    $text = new \Imamuseum\Harvester\Models\Text();
+                    $text->text = $value;
+                    $text->object_id = $object_id;
+                    $text->text_type_id = $text_type_id;
+                }
+
+                $text->save();
+            }
         }
     }
 

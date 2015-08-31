@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Term extends Model
 {
+    public $timestamps = false;
+
     public function objects()
     {
         return $this->belongsToMany('Imamuseum\Harvester\Models\Object');

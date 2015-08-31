@@ -16,8 +16,7 @@ class CreateTextsTable extends Migration
             $table->increments('id');
             $table->integer('object_id')->unsigned();
             $table->integer('text_type_id')->unsigned();
-            $table->string('field')->nullable();
-            $table->longText('text')->nullable();
+            $table->longText('text');
             $table->unique(['object_id', 'text_type_id']);
             $table->timestamps();
         });

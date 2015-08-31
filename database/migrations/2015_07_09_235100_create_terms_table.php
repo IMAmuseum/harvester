@@ -16,9 +16,7 @@ class CreateTermsTable extends Migration
             $table->increments('id');
             $table->integer('term_type_id')->unsigned();
             $table->string('term');
-            $table->text('term_desc')->nullable();
             $table->unique(['term_type_id', 'term']);
-            $table->timestamps();
         });
     }
 
