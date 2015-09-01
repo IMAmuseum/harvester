@@ -37,12 +37,12 @@ class ProcessImages extends Command implements SelfHandling, ShouldBeQueued
     {
         $obj_id = $this->object_id;
 
-        // Get all piction urls for this object
-        $piction_urls = DB::table('objects')
+        // Get all source urls for this object
+        $source_urls = DB::table('objects')
             ->join('assets', 'objects.id', '=', 'assets.object_id')
             ->join('asset_types', function ($join) {
                 $join->on('assets.asset_type_id', '=', 'asset_types.id')
-                    ->where('asset_types.asset_type_name', '=', 'piction');
+                    ->where('asset_types.asset_type_name', '=', 'source');
             })
             ->select('objects.id', 'objects.object_uid', 'assets.asset_file_uri', 'asset_types.asset_type_name', 'assets.source_id')
             ->where('object_uid', '=', $obj_id)
@@ -58,7 +58,7 @@ class ProcessImages extends Command implements SelfHandling, ShouldBeQueued
         if (file_exists(public_path($img_path))) {
             // Remove old image from DB
             //$this->info('Deleting old image assets.');
-            foreach($piction_urls as $asset){
+            foreach($source_urls as $asset){
                 $this->delete($asset->id);
             }
 
@@ -69,7 +69,7 @@ class ProcessImages extends Command implements SelfHandling, ShouldBeQueued
         mkdir(public_path($img_path), 0777, true);
 
         // Loop through asset urls to process
-        foreach($piction_urls as $asset){
+        foreach($source_urls as $asset){
 
             // Create the assets in the filesystem
             $img = $this->create($obj_id, $img_id, $asset->asset_file_uri, $img_path);
@@ -86,10 +86,10 @@ class ProcessImages extends Command implements SelfHandling, ShouldBeQueued
      *
      * @param  int $obj_id
      * @param  int $img_id
-     * @param  url $piction_url
+     * @param  url $source_url
      * @return Response
      */
-    private function create($obj_id, $img_id, $piction_url, $img_path)
+    private function create($obj_id, $img_id, $source_url, $img_path)
     {
         // Store filenames and sizes
         $img = [
@@ -102,7 +102,7 @@ class ProcessImages extends Command implements SelfHandling, ShouldBeQueued
         ];
 
         // Copy image from url
-        copy($piction_url, public_path($img['original']));
+        copy($source_url, public_path($img['original']));
 
         $sizes = config('piction.sizes');
 
@@ -176,7 +176,7 @@ class ProcessImages extends Command implements SelfHandling, ShouldBeQueued
         DB::table('assets')
             ->join('asset_types', function ($join) {
                 $join->on('assets.asset_type_id', '=', 'asset_types.id')
-                    ->where('asset_types.asset_type_name', '<>', 'piction');
+                    ->where('asset_types.asset_type_name', '<>', 'source');
             })
             ->where('assets.object_id', '=', $obj_id)
             ->delete();

@@ -5,8 +5,9 @@
             "Imamuseum\\Harvester\\": "src/"
         }
     },
-    "minimum-stability" : "dev",
     "require": {
         "nfabre/deepzoom": "dev-master"
-    }
+    },
+    "minimum-stability" : "dev",
+    "prefer-stable" : true
 }

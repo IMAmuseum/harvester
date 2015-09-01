@@ -41,7 +41,7 @@ class ObjectTransformer
         $object_assets = $object->assets->groupBy('asset_sequence');
         foreach ($object_assets as $asset_group_key => $asset_group_value) {
             foreach ($asset_group_value as $asset_item_value) {
-                if ($asset_item_value->type->asset_type_name != 'piction') {
+                if ($asset_item_value->type->asset_type_name != 'source') {
                     $asset_transform[$asset_item_value->type->asset_type_name] = [
                         'uri' => config('app.url') . $asset_item_value->asset_file_uri,
                     ];
