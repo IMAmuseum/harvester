@@ -4,5 +4,9 @@
         "psr-4": {
             "Imamuseum\\Harvester\\": "src/"
         }
+    },
+    "minimum-stability" : "dev",
+    "require": {
+        "nfabre/deepzoom": "dev-master"
     }
 }

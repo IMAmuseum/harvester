@@ -77,7 +77,6 @@ class HarvesterCommand extends Command
             $this->output->progressAdvance();
         }
 
-
         // calculate time elapsed for command
         $end = microtime(true);
         // complete progress display in console
