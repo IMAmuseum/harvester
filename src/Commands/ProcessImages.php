@@ -104,7 +104,7 @@ class ProcessImages extends Command implements SelfHandling, ShouldBeQueued
         // Copy image from url
         copy($source_url, public_path($img['original']));
 
-        $sizes = config('piction.sizes');
+        $sizes = config('harvester.sizes');
 
         // Create derivatives of images
         foreach ($sizes as $k => $v){
