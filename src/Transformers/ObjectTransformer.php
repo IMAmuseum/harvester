@@ -76,7 +76,6 @@ class ObjectTransformer
                 foreach ($location_type as $value) {
                     $location_transform[]= [
                         'name' => $value->location,
-                        'description' => $value->location_desc,
                         'latitude' => $value->latitude,
                         'longitude' => $value->longitude
                     ];
@@ -93,8 +92,7 @@ class ObjectTransformer
                 $term_transform = null;
                 foreach ($term_type as $value) {
                     $term_transform[]= [
-                        'term' => $value->term,
-                        'description' => $value->term_desc
+                        'term' => $value->term
                     ];
                 }
                 $terms[$value->type->term_type_name] = $term_transform;
