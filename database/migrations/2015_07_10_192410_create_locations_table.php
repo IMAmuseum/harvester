@@ -19,7 +19,6 @@ class CreateLocationsTable extends Migration
             $table->decimal('latitude', 10, 8)->nullable();
             $table->decimal('longitude', 10, 8)->nullable();
             $table->unique(['location', 'location_type_id']);
-            $table->timestamps();
         });
     }
 
