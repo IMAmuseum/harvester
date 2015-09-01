@@ -40,6 +40,7 @@ class ObjectTransformer
         $asset_group = null;
         $object_assets = $object->assets->groupBy('asset_sequence');
         foreach ($object_assets as $asset_group_key => $asset_group_value) {
+            $asset_transform = null;
             foreach ($asset_group_value as $asset_item_value) {
                 if ($asset_item_value->type->asset_type_name != 'source') {
                     $asset_transform[$asset_item_value->type->asset_type_name] = [
