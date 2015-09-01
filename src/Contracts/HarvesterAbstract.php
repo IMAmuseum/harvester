@@ -32,8 +32,7 @@ abstract class HarvesterAbstract {
             $asset->asset_type_id = $asset_type_id;
             $asset->object_id = $object_id;
             $asset->asset_sequence = $sequence;
-            $asset->asset_title = isset($actorData['asset_title']) ? $actorData['asset_title'] : null;
-            $asset->asset_description = isset($actorData['asset_desc']) ? $actorData['asset_desc'] : null;
+            $asset->source_id = isset($image->source_id) ? $image->source_id : null;
             $asset->save();
             $sequence++;
         }
