@@ -16,23 +16,20 @@ class ObjectTransformer
             $object_actors = $object->actors;
             foreach ($object_actors as $actor_key => $actor_value) {
                $actors[] = [
-                    'sequence'      => $actor_value->pivot->sequence,
-                    'role'          => $actor_value->pivot->role,
-                    'display_name'  => $actor_value->actor_name_display,
-                    'first_name'    => $actor_value->actor_name_first,
-                    'last_name'     => $actor_value->actor_name_last,
-                    'middle_name'   => $actor_value->actor_name_middle,
-                    'suffix'        => $actor_value->actor_name_suffix,
-                    'custom'        => $actor_value->actor_custom,
-                    'dates'         => [
-                        'birth'     => $actor_value->birth_date,
-                        'death'     => $actor_value->death_date,
-                    ],
-                    'locations'     => [
-                        'birth_location'    => $actor_value->birth_location,
-                        'work_location'     => $actor_value->work_location,
-                        'death_location'    => $actor_value->death_location
-                    ]
+                    'sequence'          => $actor_value->pivot->sequence,
+                    'role'              => $actor_value->pivot->role,
+                    'display_name'      => $actor_value->actor_name_display,
+                    'first_name'        => $actor_value->actor_name_first,
+                    'last_name'         => $actor_value->actor_name_last,
+                    'middle_name'       => $actor_value->actor_name_middle,
+                    'suffix'            => $actor_value->actor_name_suffix,
+                    'custom'            => $actor_value->actor_custom,
+                    'birth_date'        => $actor_value->birth_date,
+                    'death_date'        => $actor_value->death_date,
+                    'birth_location'    => $actor_value->birth_location,
+                    'work_location'     => $actor_value->work_location,
+                    'death_location'    => $actor_value->death_location
+
                ];
             }
         }
@@ -48,7 +45,7 @@ class ObjectTransformer
                     ];
                 }
             }
-            $asset_group[] = $asset_transform;
+            $asset_group[$asset_item_value->source_id] = $asset_transform;
         }
 
         $dates = null;
@@ -89,11 +86,9 @@ class ObjectTransformer
             $object_terms = $object->terms;
             $object_terms = $object_terms->groupBy('term_type_id');
             foreach ($object_terms as $term_type) {
-                $term_transform = null;
+                $term_transform = [];
                 foreach ($term_type as $value) {
-                    $term_transform[]= [
-                        'term' => $value->term
-                    ];
+                    array_push($term_transform, $value->term);
                 }
                 $terms[$value->type->term_type_name] = $term_transform;
             }
@@ -115,46 +110,42 @@ class ObjectTransformer
         }
 
         return [
-            'type'          => 'objects',
-            'id'            => (int) $object->id,
-            'attributes'    => [
-                'uid'               => $object->object_uid,
-                'title'             => $object->object_title,
-                'name'              => $object->object_name,
-                'description'       => $object->object_desc,
-                'accession_num'     => $object->accession_num,
-                'accession_date'    => $object->accession_date,
-                'dimensions'        => $object->dimensions,
-                'medium_display'    => $object->medium_display,
-                'created_date'      => $object->created_date,
-                'created_location'  => $object->created_location,
-                'country'           => $object->country,
-                'culture'           => $object->culture,
-                'collection'        => $object->collection,
-                'department'        => $object->department,
-                'provenance'        => $object->provenance,
-                'inscription'       => $object->inscription,
-                'rights'            => $object->rights,
-                'credit_line'       => $object->credit_line,
-                'link_url'          => $object->link_url,
-                'link_text'         => $object->link_text,
-                'publish_web'       => $object->publish_web = '1' ? true : false,
-                'can_zoom'          => $object->can_zoom = '1' ? true : false,
-                'can_download'      => $object->can_download = '1' ? true : false,
-                'on_view'           => $object->on_view = '1' ? true : false,
-                'curator_verified'  => $object->curator_verified = '1' ? true : false,
-                'custom'            => $object->custom,
-            ],
-            'actors'        => $actors,
-            'assets'        => $asset_group,
-            'dates'         => $dates,
-            'locations'     => $locations,
-            'terms'         => $terms,
-            'texts'         => $texts,
-            'meta'          => [
-                'created_at'        => $object->created_at,
-                'updated_at'        => $object->updated_at,
-            ],
+            'type'              => 'objects',
+            'id'                => (int) $object->id,
+            'uid'               => $object->object_uid,
+            'title'             => $object->object_title,
+            'name'              => $object->object_name,
+            'description'       => $object->object_desc,
+            'accession_num'     => $object->accession_num,
+            'accession_date'    => $object->accession_date,
+            'dimensions'        => $object->dimensions,
+            'medium_display'    => $object->medium_display,
+            'created_date'      => $object->created_date,
+            'created_location'  => $object->created_location,
+            'country'           => $object->country,
+            'culture'           => $object->culture,
+            'collection'        => $object->collection,
+            'department'        => $object->department,
+            'provenance'        => $object->provenance,
+            'inscription'       => $object->inscription,
+            'rights'            => $object->rights,
+            'credit_line'       => $object->credit_line,
+            'link_url'          => $object->link_url,
+            'link_text'         => $object->link_text,
+            'publish_web'       => $object->publish_web = '1' ? true : false,
+            'can_zoom'          => $object->can_zoom = '1' ? true : false,
+            'can_download'      => $object->can_download = '1' ? true : false,
+            'on_view'           => $object->on_view = '1' ? true : false,
+            'curator_verified'  => $object->curator_verified = '1' ? true : false,
+            'terms'             => $terms,
+            'texts'             => $texts,
+            'actors'            => $actors,
+            'assets'            => $asset_group,
+            'dates'             => $dates,
+            'locations'         => $locations,
+            'custom'            => $object->custom,
+            'created_at'        => $object->created_at,
+            'updated_at'        => $object->updated_at,
         ];
     }
 
