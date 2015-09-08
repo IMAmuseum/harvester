@@ -6,7 +6,7 @@
         }
     },
     "require": {
-        "nfabre/deepzoom": "dev-master"
+        "jeremytubbs/deepzoom": "dev-master"
     },
     "minimum-stability" : "dev",
     "prefer-stable" : true
