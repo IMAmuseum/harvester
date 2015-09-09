@@ -30,13 +30,11 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
     public function __construct($object_id)
     {
         $this->object_id = $object_id;
-        $this->sizes = config('harvester.sizes');
-        $this->deepzoom = DeepzoomFactory::create([
-            'path' => public_path('images/'.$object_id),
-            'driver' => 'imagick'
-        ]);
+        $this->sizes = config('harvester.image.sizes');
+        $this->protected = config('harvester.image.protected');
+        $this->deepzoom = null;
         $this->filesystem = new Filesystem(new Local(public_path()));
-        $this->imageManager = new ImageManager(['driver' => 'imagick']);
+        $this->imageManager = new ImageManager(['driver' => config('harvester.image.driver')]);
     }
 
     /**
@@ -46,6 +44,11 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
      */
     public function handle()
     {
+        $this->deepzoom = DeepzoomFactory::create([
+            'path' => public_path('images/'.$this->object_id),
+            'driver' => config('harvester.image.driver')
+        ]);
+
         // get object
         $object = Object::with('assets', 'assets.type')->findOrFail($this->object_id);
 
@@ -82,10 +85,10 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
                         $this->filesystem->put($imgPath, $img);
                         $this->createAsset($imgPath, $asset_type_id, $object->id, $asset->asset_sequence, $asset->source_id);
                     }
-                // generate the sizes below the restricted width
+                // generate the sizes below the protected width
                 } else {
                     foreach ($this->sizes as $key => $value) {
-                        if ($value <= config('harvester.restrict.width')) {
+                        if ($value <= $this->protected['width']) {
                             $asset_type_id = AssetType::where('asset_type_name', '=', $key)->pluck('id');
                             $img = $this->imageManager->make($asset->asset_file_uri);
                             // prevent possible upsizing
@@ -99,15 +102,15 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
                             $this->createAsset($imgPath, $asset_type_id, $object->id, $asset->asset_sequence, $asset->source_id);
                         }
                     }
-                    // generate the maximum restricted size
-                    $asset_type_id = AssetType::where('asset_type_name', '=', 'restrict')->pluck('id');
+                    // generate the maximum protected size
+                    $asset_type_id = AssetType::where('asset_type_name', '=', 'protected')->pluck('id');
                     $img = $this->imageManager->make($asset->asset_file_uri);
-                    $img->resize(config('harvester.restrict.width'), config('harvester.restrict.height'), function ($constraint) {
+                    $img->resize($this->protected['width'], $this->protected['height'], function ($constraint) {
                         $constraint->aspectRatio();
                         $constraint->upsize();
                     });
                     $img->encode('jpg');
-                    $imgPath = 'images/'.$object->id.'/'.$asset->asset_sequence.'/'.$asset->asset_sequence.'_restrict.jpg';
+                    $imgPath = 'images/'.$object->id.'/'.$asset->asset_sequence.'/'.$asset->asset_sequence.'_protected.jpg';
                     $this->filesystem->put($imgPath, $img);
                     $this->createAsset($imgPath, $asset_type_id, $object->id, $asset->asset_sequence, $asset->source_id);
                 }
@@ -116,7 +119,8 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
     }
 
     public function createAsset($imgPath, $asset_type_id, $object_id, $sequence, $source_id) {
-        $asset = Asset::firstOrNew(['asset_file_uri' => $imgPath]);
+        $asset = Asset::firstOrNew(['object_id' => $object_id, 'asset_type_id' => $asset_type_id, 'source_id' => $source_id]);
+        $asset->asset_file_uri = $imgPath;
         $asset->asset_type_id = $asset_type_id;
         $asset->object_id = $object_id;
         $asset->asset_sequence = $sequence;
@@ -125,23 +129,28 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
     }
 
     public function deleteAssetRecords($object) {
+        // create list of asset_ids to delete
         $asset_ids = [];
         foreach ($object->assets as $asset) {
+            // never delete the source
             if($asset->type->asset_type_name != 'source') {
                 // if object has proper rights
                 if ($object->can_zoom == 1 && $object->can_download == 1) {
-                    if ($asset->type->asset_type_name == 'restrict') {
+                    // if it has old protected assest
+                    if ($asset->type->asset_type_name == 'protected') {
                         array_push($asset_ids, $asset->id);
                     }
                 } else {
-                    if ($asset->type->asset_type_name != 'restrict') {
+                    if ($asset->type->asset_type_name != 'protected') {
+                        // if the size is smaller than the protected size
                         foreach ($this->sizes as $key => $value) {
                             if (strtolower($key) == $asset->type->asset_type_name) {
-                                if ($value >= config('harvester.restrict.width')) {
+                                if ($value >= $this->protected['width']) {
                                     array_push($asset_ids, $asset->id);
                                 }
                             }
                         }
+                        // always add 'dzi' and 'jsonp' if they exist
                         if ($asset->type->asset_type_name == 'dzi') array_push($asset_ids, $asset->id);
                         if ($asset->type->asset_type_name == 'jsonp') array_push($asset_ids, $asset->id);
                     }
