@@ -42,8 +42,8 @@ class HarvesterServiceProvider extends ServiceProvider
         ], 'migrations');
 
         $this->commands([
-            'Imamuseum\Harvester\Console\Commands\HarvesterCommand',
-            'Imamuseum\Harvester\Console\Commands\HarvestImagesCommand'
+            'Imamuseum\Harvester\Console\Commands\HarvestCollectionCommand',
+            'Imamuseum\Harvester\Console\Commands\HarvestObjectCommand'
         ]);
     }
 }

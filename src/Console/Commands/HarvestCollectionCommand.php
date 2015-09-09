@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Imamuseum\Harvester\Contracts\HarvesterInterface;
 
 
-class HarvesterCommand extends Command
+class HarvestCollectionCommand extends Command
 {
 
     use \Imamuseum\Harvester\Traits\TimerTrait;
@@ -16,14 +16,17 @@ class HarvesterCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'collection:harvest {--initial} {--update} {source?}';
+    protected $signature = 'harvest:collection
+                            {--initial : Run the inital collection sync.}
+                            {--update : Run the update collection sync.}
+                            {--source=null : Option for multi source data sync.}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Command description.';
+    protected $description = 'Harvest initial or update collection data.';
 
     /**
      * Create a new command instance.
@@ -55,10 +58,11 @@ class HarvesterCommand extends Command
 
         // create extended types maybe should of a harvester config
         if ($this->option('initial')) $this->harvester->createTypes();
+        $source = $this->option('source');
 
         // get all object_uid from piction
-        if ($this->option('initial')) $response = $this->harvester->initialIDs();
-        if ($this->option('update')) $response = $this->harvester->updateIDs();
+        if ($this->option('initial')) $response = $this->harvester->initialIDs($source);
+        if ($this->option('update')) $response = $this->harvester->updateIDs($source);
         $objectIDs = $response->results;
 
         // start progress display in console
@@ -66,7 +70,7 @@ class HarvesterCommand extends Command
 
         foreach ($objectIDs as $objectID) {
             // run the intial update on object to populate all fields
-            $this->harvester->initialOrUpdateObject($objectID);
+            $this->harvester->initialOrUpdateObject($objectID, config('queue.default'), $source);
 
             // errors will be logged to console
             if (isset($object['error'])) {
