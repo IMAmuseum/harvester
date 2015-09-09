@@ -16,7 +16,7 @@ class HarvesterCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'collection:harvest {--initial} {--update}';
+    protected $signature = 'collection:harvest {--initial} {--update} {source?}';
 
     /**
      * The console command description.
