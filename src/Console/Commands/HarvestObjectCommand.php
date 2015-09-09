@@ -18,7 +18,7 @@ class HarvestObjectCommand extends Command
     protected $signature = 'harvest:object
                             {--id= : The Laravel database id of the object.}
                             {--accession= : The accession number of the object.}
-                            {--imagesOnly=false : Set to true if you only want to update images.}
+                            {--imagesOnly : Set to true if you only want to update images.}
                             {--source=null}';
 
     /**
@@ -54,14 +54,15 @@ class HarvestObjectCommand extends Command
         }
 
         // if data is set to true harvest data
-        if ($this->option('imagesOnly') != 'true') {
+        if (! $this->option('imagesOnly')) {
             $source = $this->option('source');
+            $this->info('Processing data and images for "' . $object->object_title . '".');
             $this->harvester->initialOrUpdateObject($object->object_uid, 'sync', $source);
         }
 
         // if images is set to true harvest images
-        if ($this->option('imagesOnly') != 'false') {
-            $this->info('images');
+        if ($this->option('imagesOnly')) {
+            $this->info('Processing images for "' . $object->object_title . '".');
             config(['queue.default' => 'sync']);
             // Queue command to process images
             $command = new HarvestImages($object->id);
