@@ -60,6 +60,7 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
         }
 
         foreach ($object->source as $asset) {
+            // load image into memory for this asset
             $img = $this->imageManager->make($asset->source_uri);
             // if object has proper rights
             if ($object->can_zoom == 1 || $object->can_download == 1) {
@@ -79,7 +80,7 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
                     $this->generateAsset($img, $object->id, $asset, $type, $width);
                 }
                 if ($object->can_download == 1) {
-                    $this->generateAsset($img, $object->id, $asset, 'original', $img->height(), $img->height());
+                    $this->generateAsset($img, $object->id, $asset, 'original', $img->width(), $img->height());
                 }
             // generate the sizes below the protected width
             } else {
@@ -94,18 +95,20 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
         }
     }
 
-    public function generateAsset($img, $object_id, $asset, $type, $width, $height=null)
+    public function generateAsset($img, $object_id, $asset, $type, $width, $height = NULL)
     {
+        $temp = clone $img;
         $asset_type_id = AssetType::where('asset_type_name', '=', $type)->pluck('id');
         // prevent possible upsizing
-        $img->resize($width, $height, function ($constraint) {
+        $temp->resize($width, $height, function ($constraint) {
             $constraint->aspectRatio();
             $constraint->upsize();
         });
-        $img->encode('jpg');
+        $temp->encode('jpg');
         $imgPath = 'images/'.$object_id.'/'.$asset->source_sequence.'/'.$asset->source_sequence.'_'.$type.'.jpg';
-        $this->filesystem->put($imgPath, $img);
+        $this->filesystem->put($imgPath, $temp);
         $this->createAsset($imgPath, $asset_type_id, $object_id, $asset->source_sequence, $asset->id);
+        unset($temp);
     }
 
     public function createAsset($imgPath, $asset_type_id, $object_id, $sequence, $source_id)
