@@ -2,6 +2,8 @@
 
 namespace Imamuseum\Harvester\Contracts;
 
+use Imamuseum\Harvester\Models\Source;
+use Imamuseum\Harvester\Models\Actor;
 
 abstract class HarvesterAbstract {
 
@@ -24,15 +26,14 @@ abstract class HarvesterAbstract {
         }
     }
 
-    public function createOrUpdateAssets($asset_type_id, $object_id, $images)
+    public function createOrUpdateAssetSource($object_id, $images)
     {
         $sequence = 0;
         foreach ($images as $image) {
-            $asset = \Imamuseum\Harvester\Models\Asset::firstOrNew(['asset_file_uri' => $image->source_url]);
-            $asset->asset_type_id = $asset_type_id;
+            $asset = Source::firstOrNew(['origin_id' => $image->source_id]);
             $asset->object_id = $object_id;
-            $asset->asset_sequence = $sequence;
-            $asset->source_id = isset($image->source_id) ? $image->source_id : null;
+            $asset->source_uri = $image->source_url;
+            $asset->source_sequence = $sequence;
             $asset->save();
             $sequence++;
         }
@@ -44,7 +45,7 @@ abstract class HarvesterAbstract {
         if ($actors != null) {
             $sequence = 0;
             foreach ($actors as $actorData) {
-                $actor = \Imamuseum\Harvester\Models\Actor::firstOrNew(['actor_uid' => $actorData['name']]);
+                $actor = Actor::firstOrNew(['actor_uid' => $actorData['name']]);
                 $actor->actor_uid = $actorData['name'];
                 $actor->actor_name_display = $actorData['name'];
                 $actor->actor_name_first = isset($actorData['name_first']) ? $actorData['name_first'] : null;

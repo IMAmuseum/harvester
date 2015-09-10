@@ -39,13 +39,11 @@ class ObjectTransformer
         foreach ($object_assets as $asset_group_key => $asset_group_value) {
             $asset_transform = null;
             foreach ($asset_group_value as $asset_item_value) {
-                if ($asset_item_value->type->asset_type_name != 'source') {
-                    $asset_transform[$asset_item_value->type->asset_type_name] = [
-                        'uri' => config('app.url') . $asset_item_value->asset_file_uri,
-                    ];
-                }
+                $asset_transform[$asset_item_value->type->asset_type_name] = [
+                    'uri' => config('app.url') . $asset_item_value->asset_file_uri,
+                ];
             }
-            $asset_group[$asset_item_value->source_id] = $asset_transform;
+            $asset_group[$asset_item_value->source->origin_id] = $asset_transform;
         }
 
         $dates = null;

@@ -20,6 +20,11 @@ class Object extends Model
         return $this->hasMany('Imamuseum\Harvester\Models\Asset');
     }
 
+    public function source()
+    {
+        return $this->hasMany('Imamuseum\Harvester\Models\Source');
+    }
+
     public function terms()
     {
         return $this->belongsToMany('Imamuseum\Harvester\Models\Term');

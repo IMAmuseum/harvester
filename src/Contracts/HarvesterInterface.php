@@ -18,6 +18,6 @@ interface HarvesterInterface
     public function createOrFindDates($fields);
     public function createOrFindLocations($fields);
     public function createOrUpdateTexts($object_id, $texts);
-    public function createOrUpdateAssets($asset_type_id, $object_id, $images);
+    public function createOrUpdateAssetSource($object_id, $images);
     public function createOrUpdateActors($actors);
 }

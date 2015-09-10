@@ -46,7 +46,7 @@ trait TransactionApiTrait
                 $q->where('table', '=', $table);
             }]);
         }
-        $query->with(['actors', 'assets', 'assets.type', 'terms', 'terms.type', 'texts', 'texts.type', 'locations', 'locations.type', 'dates', 'dates.type']);
+        $query->with(['actors', 'assets', 'assets.type', 'assets.source', 'terms', 'terms.type', 'texts', 'texts.type', 'locations', 'locations.type', 'dates', 'dates.type']);
 
         $request = $query->paginate($take);
 

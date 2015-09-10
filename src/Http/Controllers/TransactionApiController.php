@@ -47,7 +47,7 @@ class TransactionApiController extends Controller
      */
     public function object_show($id)
     {
-        $results = Object::with(['actors', 'assets', 'assets.type', 'terms', 'terms.type', 'texts', 'texts.type', 'locations', 'locations.type', 'dates', 'dates.type'])->findOrFail($id);
+        $results = Object::with(['actors', 'assets', 'assets.type', 'assets.source', 'terms', 'terms.type', 'texts', 'texts.type', 'locations', 'locations.type', 'dates', 'dates.type'])->findOrFail($id);
 
         $results = $this->transformer->item($results);
 
