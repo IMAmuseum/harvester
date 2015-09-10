@@ -17,9 +17,9 @@ class HarvestObjectCommand extends Command
      */
     protected $signature = 'harvest:object
                             {--id= : The Laravel database id of the object.}
-                            {--accession= : The accession number of the object.}
-                            {--imagesOnly : Set to true if you only want to update images.}
-                            {--source=null}';
+                            {--uid= : The unique id of object from source data.}
+                            {--imagesOnly : Set  if you only want to update images.}
+                            {--source=null : Option for multi source data sync.}';
 
     /**
      * The console command description.
@@ -48,9 +48,9 @@ class HarvestObjectCommand extends Command
         }
 
         // if accession is set find object
-        if ($this->option('accession')) {
-            $accession_num =  $this->option('object');
-            $object = Object::where('accession_num', '=', $accession_num)->firstOrFail();
+        if ($this->option('uid')) {
+            $object_uid =  $this->option('object');
+            $object = Object::where('object_uid', '=', $object_uid)->firstOrFail();
         }
 
         // if data is set to true harvest data
