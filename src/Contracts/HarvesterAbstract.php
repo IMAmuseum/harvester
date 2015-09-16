@@ -61,6 +61,17 @@ abstract class HarvesterAbstract {
                 $actor->save();
 
                 $actorSync[$actor->id] = ['role' => $actorData['role'], 'sequence' => $sequence];
+
+                if ($actorData->dates) {
+                    $actorDateIDs = $this->createOrFindDates($actorData->dates);
+                    $actor->locations()->sync($actorDateIDs);
+                }
+
+                if ($actorData->locations) {
+                    $actorLocationIDs = $this->createOrFindLocations($actorData->locations);
+                    $actor->locations()->sync($actorlocationIDs);
+                }
+
                 $sequence++;
             }
             return $actorSync;
