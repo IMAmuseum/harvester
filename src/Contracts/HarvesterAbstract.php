@@ -57,6 +57,7 @@ abstract class HarvesterAbstract {
                 $actor->work_location = isset($actorData['work_location']) ? $actorData['work_location'] : null;
                 $actor->death_date = isset($actorData['death_date']) ? $actorData['death_date'] : null;
                 $actor->death_location = isset($actorData['death_location']) ? $actorData['death_location'] : null;
+                $actor->actor_nationality = isset($actorData['actor_nationality']) ? $actorData['actor_nationality'] : null;
                 $actor->actor_custom = isset($actorData['actor_custom']) ? $actorData['actor_custom'] : null;
                 $actor->save();
 
