@@ -38,6 +38,7 @@ class CreateObjectsTable extends Migration
             $table->boolean('publish_web')->default(0);
             $table->boolean('can_zoom')->default(0);
             $table->boolean('can_download')->default(0);
+            $table->string('protected_size')->nullable();
             $table->boolean('on_view')->default(0);
             $table->boolean('curator_verified')->default(0);
             $table->text('object_custom')->nullable();

@@ -62,6 +62,7 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
         foreach ($object->source as $asset) {
             // load image into memory for this asset
             $img = $this->imageManager->make($asset->source_uri);
+
             // if object has proper rights
             if ($object->can_zoom == 1 || $object->can_download == 1) {
                 // create deepzoom tiles
@@ -82,15 +83,27 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
                 if ($object->can_download == 1) {
                     $this->generateAsset($img, $object->id, $asset, 'original', $img->width(), $img->height());
                 }
+            }
+
             // generate the sizes below the protected width
-            } else {
+            if ($object->protected_size != null) {
+
+                $protected_size = $this->protected[$object->protected_size];
+                $img_width = $img->width();
+                $img_height = $img->height();
+                $aspect_ratio = $img_width / $img_height;
+
                 foreach ($this->sizes as $type => $width) {
-                    if ($width <= $this->protected['width']) {
+                    if ($width <= $protected_size['width']) {
                         $this->generateAsset($img, $object->id, $asset, $type, $width);
                     }
                 }
-                // generate the maximum protected size
-                $this->generateAsset($img, $object->id, $asset, 'protected', $this->protected['width'], $this->protected['height']);
+                // check is aspect ratio is horizontal of vertical
+                if ($aspect_ratio < 1) {
+                    $this->generateAsset($img, $object->id, $asset, 'protected', $protected_size['width'], $protected_size['height']);
+                } else {
+                    $this->generateAsset($img, $object->id, $asset, 'protected', $protected_size['height'], $protected_size['width']);
+                }
             }
         }
     }
@@ -132,10 +145,11 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
                 }
             } else {
                 if ($asset->type->asset_type_name != 'protected') {
+                    $protected_size = $this->protected[$object->protected_size];
                     // if the size is smaller than the protected size
                     foreach ($this->sizes as $key => $value) {
                         if (strtolower($key) == $asset->type->asset_type_name) {
-                            if ($value > $this->protected['width']) {
+                            if ($value > $protected_size['width']) {
                                 array_push($asset_ids, $asset->id);
                             }
                         }
