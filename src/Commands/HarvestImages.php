@@ -95,7 +95,11 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
 
                 foreach ($this->sizes as $type => $width) {
                     if ($width <= $protected_size['width']) {
-                        $this->generateAsset($img, $object->id, $asset, $type, $width);
+                        if ($aspect_ratio < 1) {
+                            $this->generateAsset($img, $object->id, $asset, $type, $width, $protected_size['height']);
+                        } else {
+                            $this->generateAsset($img, $object->id, $asset, $type, $width, $protected_size['width']);
+                        }
                     }
                 }
                 // check is aspect ratio is horizontal of vertical
@@ -108,7 +112,7 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
         }
     }
 
-    public function generateAsset($img, $object_id, $asset, $type, $width, $height = NULL)
+    public function generateAsset($img, $object_id, $asset, $type, $width, $height = NULL, $protected = NULL)
     {
         $temp = clone $img;
         $asset_type_id = AssetType::where('asset_type_name', '=', $type)->pluck('id');
@@ -117,7 +121,8 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
             $constraint->aspectRatio();
             $constraint->upsize();
         });
-        $temp->encode('jpg');
+
+        $temp->encode('jpg', 100);
         $imgPath = 'images/'.$object_id.'/'.$asset->source_sequence.'/'.$asset->source_sequence.'_'.$type.'.jpg';
         $this->filesystem->put($imgPath, $temp);
         $this->createAsset($imgPath, $asset_type_id, $object_id, $asset->source_sequence, $asset->id);
