@@ -23,7 +23,7 @@ class ObjectTransformer
                     'last_name'         => $actor_value->actor_name_last,
                     'middle_name'       => $actor_value->actor_name_middle,
                     'suffix'            => $actor_value->actor_name_suffix,
-                    'custom'            => $actor_value->actor_custom,
+                    'nationality'       => $actor_value->actor_nationality,
                     'birth_date'        => $actor_value->birth_date,
                     'death_date'        => $actor_value->death_date,
                     'birth_location'    => $actor_value->birth_location,
@@ -31,7 +31,7 @@ class ObjectTransformer
                     'death_location'    => $actor_value->death_location,
                     'dates'             => $this->transformDates($actor_value->dates),
                     'locations'         => $this->transformDates($actor_value->locations),
-
+                    'custom'            => $actor_value->actor_custom,
                ];
             }
         }
