@@ -45,7 +45,7 @@ abstract class HarvesterAbstract {
         if ($actors != null) {
             $sequence = 0;
             foreach ($actors as $actorData) {
-                $actor = Actor::firstOrNew(['actor_uid' => $actorData->name]);
+                $actor = Actor::firstOrNew(['actor_uid' => $actorData->actor_uid]);
                 $actor->actor_uid = $actorData->actor_uid;
                 $actor->actor_name_display = $actorData->actor_name_display;
                 $actor->actor_name_first = isset($actorData->name_first) ? $actorData->name_first : null;
