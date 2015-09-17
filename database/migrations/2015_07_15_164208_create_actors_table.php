@@ -25,7 +25,7 @@ class CreateActorsTable extends Migration
             $table->string('work_location')->nullable();
             $table->string('death_date')->nullable();
             $table->string('death_location')->nullable();
-            $actor->string('actor_nationality')->nullable();
+            $table->string('actor_nationality')->nullable();
             $table->text('actor_custom')->nullable();
             $table->timestamps();
         });

@@ -45,30 +45,30 @@ abstract class HarvesterAbstract {
         if ($actors != null) {
             $sequence = 0;
             foreach ($actors as $actorData) {
-                $actor = Actor::firstOrNew(['actor_uid' => $actorData['name']]);
-                $actor->actor_uid = $actorData['name'];
-                $actor->actor_name_display = $actorData['name'];
-                $actor->actor_name_first = isset($actorData['name_first']) ? $actorData['name_first'] : null;
-                $actor->actor_name_last = isset($actorData['name_last']) ? $actorData['name_last'] : null;
-                $actor->actor_name_middle = isset($actorData['name_middle']) ? $actorData['name_middle'] : null;
-                $actor->actor_name_suffix = isset($actorData['name_suffix']) ? $actorData['name_suffix'] : null;
-                $actor->birth_date = isset($actorData['birth_date']) ? $actorData['birth_date'] : null;
-                $actor->birth_location = isset($actorData['birth_location']) ? $actorData['birth_location'] : null;
-                $actor->work_location = isset($actorData['work_location']) ? $actorData['work_location'] : null;
-                $actor->death_date = isset($actorData['death_date']) ? $actorData['death_date'] : null;
-                $actor->death_location = isset($actorData['death_location']) ? $actorData['death_location'] : null;
-                $actor->actor_nationality = isset($actorData['actor_nationality']) ? $actorData['actor_nationality'] : null;
-                $actor->actor_custom = isset($actorData['actor_custom']) ? $actorData['actor_custom'] : null;
+                $actor = Actor::firstOrNew(['actor_uid' => $actorData->name]);
+                $actor->actor_uid = $actorData->actor_uid;
+                $actor->actor_name_display = $actorData->actor_name_display;
+                $actor->actor_name_first = isset($actorData->name_first) ? $actorData->name_first : null;
+                $actor->actor_name_last = isset($actorData->name_last) ? $actorData->name_last : null;
+                $actor->actor_name_middle = isset($actorData->name_middle) ? $actorData->name_middle : null;
+                $actor->actor_name_suffix = isset($actorData->name_suffix) ? $actorData->name_suffix : null;
+                $actor->birth_date = isset($actorData->birth_date) ? $actorData->birth_date : null;
+                $actor->birth_location = isset($actorData->birth_location) ? $actorData->birth_location : null;
+                $actor->work_location = isset($actorData->work_location) ? $actorData->work_location : null;
+                $actor->death_date = isset($actorData->death_date) ? $actorData->death_date : null;
+                $actor->death_location = isset($actorData->death_location) ? $actorData->death_location : null;
+                $actor->actor_nationality = isset($actorData->actor_nationality) ? $actorData->actor_nationality : null;
+                $actor->actor_custom = isset($actorData->actor_custom) ? $actorData->actor_custom : null;
                 $actor->save();
 
-                $actorSync[$actor->id] = ['role' => $actorData['role'], 'sequence' => $sequence];
+                $actorSync[$actor->id] = ['role' => $actorData->role, 'sequence' => $sequence];
 
-                if ($actorData->dates) {
+                if (isset($actorData->dates)) {
                     $actorDateIDs = $this->createOrFindDates($actorData->dates);
-                    $actor->locations()->sync($actorDateIDs);
+                    $actor->dates()->sync($actorDateIDs);
                 }
 
-                if ($actorData->locations) {
+                if (isset($actorData->locations)) {
                     $actorLocationIDs = $this->createOrFindLocations($actorData->locations);
                     $actor->locations()->sync($actorlocationIDs);
                 }
@@ -111,6 +111,7 @@ abstract class HarvesterAbstract {
     public function createOrFindDates($fields)
     {
         $field_ids = null;
+        $fields = is_object($fields) ? json_decode(json_encode($fields), true) : $fields;
         foreach($fields as $type => $contents) {
             $type_id = \DB::table('date_types')->where('date_type_name', '=', $type)->pluck('id');
 
@@ -139,6 +140,7 @@ abstract class HarvesterAbstract {
     public function createOrFindLocations($fields)
     {
         $field_ids = null;
+        $fields = is_object($fields) ? json_decode(json_encode($fields), true) : $fields;
         foreach($fields as $type => $contents) {
             $type_id = \DB::table('location_types')->where('location_type_name', '=', $type)->pluck('id');
             if ($contents['location'] != '') {

@@ -12,4 +12,14 @@ class Actor extends Model
     {
         return $this->belongsToMany('Imamuseum\Harvester\Models\Object')->withPivot('sequence', 'role');
     }
+
+    public function locations()
+    {
+        return $this->belongsToMany('Imamuseum\Harvester\Models\Location');
+    }
+
+    public function dates()
+    {
+        return $this->belongsToMany('Imamuseum\Harvester\Models\Date');
+    }
 }
