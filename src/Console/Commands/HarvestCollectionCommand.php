@@ -65,7 +65,7 @@ class HarvestCollectionCommand extends Command
         if ($this->option('initial')) $this->harvester->createTypes();
 
         // get all object_uid from piction
-        if ($this->option('initial') || $this->option('initial')) $response = $this->harvester->initialIDs($source);
+        if ($this->option('initial') || $this->option('refresh')) $response = $this->harvester->initialIDs($source);
         if ($this->option('update')) $response = $this->harvester->updateIDs($source);
         $objectIDs = $response->results;
 
