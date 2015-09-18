@@ -18,8 +18,10 @@ class HarvestCollectionCommand extends Command
      */
     protected $signature = 'harvest:collection
                             {--initial : Run the inital collection sync.}
+                            {--refresh : Run sync all objects to update new data.}
                             {--update : Run the update collection sync.}
-                            {--source=null : Option for multi source data sync.}';
+                            {--source=null : Option for multi source data sync.}
+                            {--only=null : Options images or data}';
 
     /**
      * The console command description.
@@ -46,6 +48,9 @@ class HarvestCollectionCommand extends Command
      */
     public function handle()
     {
+        $source = $this->option('source');
+        $only = $this->option('only');
+
         if ($this->option('initial')) {
             // do not log inital sync
             config(['harvester.api.log' => false]);
@@ -58,10 +63,9 @@ class HarvestCollectionCommand extends Command
 
         // create extended types maybe should of a harvester config
         if ($this->option('initial')) $this->harvester->createTypes();
-        $source = $this->option('source');
 
         // get all object_uid from piction
-        if ($this->option('initial')) $response = $this->harvester->initialIDs($source);
+        if ($this->option('initial') || $this->option('initial')) $response = $this->harvester->initialIDs($source);
         if ($this->option('update')) $response = $this->harvester->updateIDs($source);
         $objectIDs = $response->results;
 
@@ -70,7 +74,7 @@ class HarvestCollectionCommand extends Command
 
         foreach ($objectIDs as $objectID) {
             // run the intial update on object to populate all fields
-            $this->harvester->initialOrUpdateObject($objectID, config('queue.default'), $source);
+            $this->harvester->initialOrUpdateObject($objectID, config('queue.default'), $only, $source);
 
             // errors will be logged to console
             if (isset($object['error'])) {

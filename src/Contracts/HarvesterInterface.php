@@ -10,7 +10,7 @@ interface HarvesterInterface
 {
     public function initialIDs($source);
     public function updateIDs($source);
-    public function initialOrUpdateObject($uid, $queue, $source);
+    public function initialOrUpdateObject($uid, $queue, $only, $source);
 
     // Part of the HavesterAbstract
     public function createTypes();
