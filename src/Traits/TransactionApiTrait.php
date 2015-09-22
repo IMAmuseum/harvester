@@ -33,8 +33,7 @@ trait TransactionApiTrait
                         if ($request->has('action')) {
                             // ?action=modified will find both created and update objects
                             if ($action == 'modified') {
-                                $q->where('action', '=', 'created');
-                                $q->orWhere('action', '=', 'updated');
+                                $q->whereIn('action', ['created', 'updated']);
                             }
                             // ?action=[created,updated,deleted]
                             if ($action != 'modified') {
