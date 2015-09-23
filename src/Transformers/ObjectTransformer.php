@@ -162,10 +162,17 @@ class ObjectTransformer
     public function collection($objects)
     {
         $data = null;
+
         foreach ($objects as $object) {
             $data[] = $this->transform($object);
         }
-        return ['data' => $data];
+        $meta = [
+            'total'         => $objects->total(),
+            'per_page'      => $objects->perPage(),
+            'current_page'  => $objects->currentPage(),
+            'last_page'     => $objects->lastPage(),
+        ];
+        return ['meta' => $meta, 'data' => $data];
     }
 
     public function item($object)
