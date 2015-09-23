@@ -16,7 +16,7 @@ trait TransactionApiTrait
             }
         }
 
-        $take = $request->has('take') ? $request->input('take') : config('harvester.api.defualts.take');
+        $take = $request->has('take') ? $request->input('take') : config('harvester.api.defaults.take');
 
         $query = Object::select();
 
@@ -27,7 +27,7 @@ trait TransactionApiTrait
                 return ['error' => 'action=' . $action . ' is not a valid request parameter.'];
             }
             $query->whereHas('transactions', function ($q) use ($table, $request, $action, $actions) {
-                        $hours = $request->has('since') ? $request->input('since') : config('harvester.api.defualts.since');
+                        $hours = $request->has('since') ? $request->input('since') : config('harvester.api.defaults.since');
                         $since = Carbon::now()->subhours($hours);
                         $q->where('created_at', '>=', $since);
                         if ($request->has('action')) {
