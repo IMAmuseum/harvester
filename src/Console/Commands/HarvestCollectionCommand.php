@@ -69,27 +69,31 @@ class HarvestCollectionCommand extends Command
         if ($this->option('update')) $response = $this->harvester->updateIDs($source);
         $objectIDs = $response->results;
 
-        // start progress display in console
-        $this->output->progressStart($response->total);
+        if (count($objectIDs) > 0) {
+            // start progress display in console
+            $this->output->progressStart($response->total);
 
-        foreach ($objectIDs as $objectID) {
-            // run the intial update on object to populate all fields
-            $this->harvester->initialOrUpdateObject($objectID, config('queue.default'), $only, $source);
+            foreach ($objectIDs as $objectID) {
+                // run the intial update on object to populate all fields
+                $this->harvester->initialOrUpdateObject($objectID, config('queue.default'), $only, $source);
 
-            // errors will be logged to console
-            if (isset($object['error'])) {
-                $this->error($object['error']);
+                // errors will be logged to console
+                if (isset($object['error'])) {
+                    $this->error($object['error']);
+                }
+
+                // advance progress display in console
+                $this->output->progressAdvance();
             }
 
-            // advance progress display in console
-            $this->output->progressAdvance();
+            // calculate time elapsed for command
+            $end = microtime(true);
+            // complete progress display in console
+            $this->output->progressFinish();
+            // dispaly total time in console
+            $this->info($this->timer($begin, $end));
+        } else {
+            $this->info('No objects have benn updated.');
         }
-
-        // calculate time elapsed for command
-        $end = microtime(true);
-        // complete progress display in console
-        $this->output->progressFinish();
-        // dispaly total time in console
-        $this->info($this->timer($begin, $end));
     }
 }
