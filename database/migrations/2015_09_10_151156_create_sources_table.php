@@ -18,6 +18,7 @@ class CreateSourcesTable extends Migration
             $table->integer('origin_id')->unique();
             $table->string('source_uri')->unique();
             $table->integer('source_sequence');
+            $table->foreign('object_id')->references('id')->on('objects')->onDelete('cascade');
             $table->timestamps();
         });
     }
