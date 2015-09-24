@@ -93,7 +93,7 @@ class HarvestCollectionCommand extends Command
             // dispaly total time in console
             $this->info($this->timer($begin, $end));
         } else {
-            $this->info('No objects have benn updated.');
+            $this->info('No objects have been updated.');
         }
     }
 }
