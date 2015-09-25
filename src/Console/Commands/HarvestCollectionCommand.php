@@ -4,6 +4,7 @@ namespace Imamuseum\Harvester\Console\Commands;
 
 use Illuminate\Console\Command;
 use Imamuseum\Harvester\Contracts\HarvesterInterface;
+use Imamuseum\Harvester\Models\Object;
 
 
 class HarvestCollectionCommand extends Command
@@ -57,6 +58,7 @@ class HarvestCollectionCommand extends Command
         }
 
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
+        if ($this->option('refresh')) $this->info('Getting all object IDs. for refresh.');
         if ($this->option('update')) $this->info('Getting all updated object IDs.');
         // begin timer
         $begin = microtime(true);
@@ -65,7 +67,15 @@ class HarvestCollectionCommand extends Command
         if ($this->option('initial')) $this->harvester->createTypes();
 
         // get all object_uid from piction
-        if ($this->option('initial') || $this->option('refresh')) $response = $this->harvester->initialIDs($source);
+        if ($this->option('initial')) $response = $this->harvester->initialIDs($source);
+        if ($this->option('refresh')) {
+            $objects = \DB::table('objects')->lists('object_uid');
+            $response = [
+                'results' => $objects,
+                'total' => count($objects),
+            ];
+            $response = (object) $response;
+        }
         if ($this->option('update')) $response = $this->harvester->updateIDs($source);
         $objectIDs = $response->results;
 
