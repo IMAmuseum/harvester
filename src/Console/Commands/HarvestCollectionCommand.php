@@ -4,7 +4,6 @@ namespace Imamuseum\Harvester\Console\Commands;
 
 use Illuminate\Console\Command;
 use Imamuseum\Harvester\Contracts\HarvesterInterface;
-use Imamuseum\Harvester\Models\Object;
 
 
 class HarvestCollectionCommand extends Command
