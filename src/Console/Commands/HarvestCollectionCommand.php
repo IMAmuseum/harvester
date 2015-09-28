@@ -57,7 +57,7 @@ class HarvestCollectionCommand extends Command
         }
 
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
-        if ($this->option('refresh')) $this->info('Getting all object IDs. for refresh.');
+        if ($this->option('refresh')) $this->info('Getting all object IDs for refresh.');
         if ($this->option('update')) $this->info('Getting all updated object IDs.');
         // begin timer
         $begin = microtime(true);

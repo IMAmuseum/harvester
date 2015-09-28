@@ -114,7 +114,7 @@ class ObjectTransformer
             'assets'            => $asset_group,
             'dates'             => $dates,
             'locations'         => $locations,
-            'custom'            => $object->custom,
+            'custom'            => $object->object_custom,
             'created_at'        => $object->created_at,
             'updated_at'        => $object->updated_at,
         ];
