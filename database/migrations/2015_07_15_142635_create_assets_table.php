@@ -15,11 +15,10 @@ class CreateAssetsTable extends Migration
         Schema::create('assets', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('object_id')->unsigned();
-            //$table->integer('source_id')->unsigned();
+            $table->integer('source_id')->unsigned();
             $table->integer('asset_type_id')->unsigned();
             $table->integer('asset_sequence');
             $table->string('asset_file_uri')->unique();
-            $table->foreign('source_id')->references('id')->on('sources')->onDelete('cascade');
             $table->timestamps();
         });
     }
