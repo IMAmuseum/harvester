@@ -21,6 +21,7 @@ class HarvestCollectionCommand extends Command
                             {--refresh : Run sync all objects to update new data.}
                             {--update : Run the update collection sync.}
                             {--export : Export content to a third-party.}
+                            {--only=null : Options data or images.}
                             {--source=null : Option for multi source data sync.}';
 
     /**
@@ -49,6 +50,7 @@ class HarvestCollectionCommand extends Command
     public function handle()
     {
         $source = $this->option('source');
+        $only = $this->option('only');
 
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
         if ($this->option('refresh')) $this->info('Getting all object IDs for refresh.');
@@ -77,12 +79,25 @@ class HarvestCollectionCommand extends Command
             $this->output->progressStart($response->total);
 
             foreach ($objectIDs as $objectID) {
-                // Queue artisan command for data only
-                \Artisan::queue('harvest:object', ['--uid' => $objectID, '--only' => 'data', '--source' => $source]);
 
-                // Queue command to process images
-                $command = new HarvestImages($objectID);
-                $this->dispatch($command);
+                if ($only == 'null') {
+                    // Queue artisan command for data only
+                    \Artisan::queue('harvest:object', ['--uid' => $objectID, '--only' => 'data', '--source' => $source]);
+                    // Queue command to process images
+                    $command = new HarvestImages($objectID);
+                    $this->dispatch($command);
+                }
+
+                if ($only == 'data') {
+                    // Queue artisan command for data only
+                    \Artisan::queue('harvest:object', ['--uid' => $objectID, '--only' => 'data', '--source' => $source]);
+                }
+
+                if ($only == 'images') {
+                    // Queue command to process images
+                    $command = new HarvestImages($objectID);
+                    $this->dispatch($command);
+                }
 
                 // advance progress display in console
                 $this->output->progressAdvance();
