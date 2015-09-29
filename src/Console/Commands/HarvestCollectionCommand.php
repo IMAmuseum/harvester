@@ -4,12 +4,12 @@ namespace Imamuseum\Harvester\Console\Commands;
 
 use Illuminate\Console\Command;
 use Imamuseum\Harvester\Contracts\HarvesterInterface;
-
+use Imamuseum\Harvester\Commands\HarvestImages;
 
 class HarvestCollectionCommand extends Command
 {
-
     use \Imamuseum\Harvester\Traits\TimerTrait;
+    use \Illuminate\Foundation\Bus\DispatchesCommands;
 
     /**
      * The name and signature of the console command.
@@ -20,8 +20,8 @@ class HarvestCollectionCommand extends Command
                             {--initial : Run the inital collection sync.}
                             {--refresh : Run sync all objects to update new data.}
                             {--update : Run the update collection sync.}
-                            {--source=null : Option for multi source data sync.}
-                            {--only=null : Options images or data}';
+                            {--export : Export content to a third-party.}
+                            {--source=null : Option for multi source data sync.}';
 
     /**
      * The console command description.
@@ -49,12 +49,6 @@ class HarvestCollectionCommand extends Command
     public function handle()
     {
         $source = $this->option('source');
-        $only = $this->option('only');
-
-        if ($this->option('initial')) {
-            // do not log inital sync
-            config(['harvester.api.log' => false]);
-        }
 
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
         if ($this->option('refresh')) $this->info('Getting all object IDs for refresh.');
@@ -71,25 +65,24 @@ class HarvestCollectionCommand extends Command
             $objects = \DB::table('objects')->lists('object_uid');
             $response = [
                 'results' => $objects,
-                'total' => count($objects),
+                'total' => count($objects)
             ];
-            $response = (object) $response;
+            $response = (object)$response;
         }
         if ($this->option('update')) $response = $this->harvester->updateIDs($source);
         $objectIDs = $response->results;
 
-        if (count($objectIDs) > 0) {
+        if ( count($objectIDs) > 0) {
             // start progress display in console
             $this->output->progressStart($response->total);
 
             foreach ($objectIDs as $objectID) {
-                // run the intial update on object to populate all fields
-                $this->harvester->initialOrUpdateObject($objectID, config('queue.default'), $only, $source);
+                // Queue artisan command for data only
+                \Artisan::queue('harvest:object', ['--uid' => $objectID, '--only' => 'data', '--source' => $source]);
 
-                // errors will be logged to console
-                if (isset($object['error'])) {
-                    $this->error($object['error']);
-                }
+                // Queue command to process images
+                $command = new HarvestImages($objectID);
+                $this->dispatch($command);
 
                 // advance progress display in console
                 $this->output->progressAdvance();
@@ -103,6 +96,11 @@ class HarvestCollectionCommand extends Command
             $this->info($this->timer($begin, $end));
         } else {
             $this->info('No objects have been updated.');
+        }
+
+        // Queue the export command
+        if ($this->option('export')) {
+            \Artisan::queue('harvest:export');
         }
     }
 }

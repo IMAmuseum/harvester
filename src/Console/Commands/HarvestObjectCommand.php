@@ -18,7 +18,7 @@ class HarvestObjectCommand extends Command
     protected $signature = 'harvest:object
                             {--id= : The Laravel database id of the object.}
                             {--uid= : The unique id of object from source data.}
-                            {--imagesOnly : Set  if you only want to update images.}
+                            {--only=null : Options data or images.}
                             {--source=null : Option for multi source data sync.}';
 
     /**
@@ -41,31 +41,28 @@ class HarvestObjectCommand extends Command
 
     public function handle()
     {
+        $only = $this->option('only');
+        $source = $this->option('source');
+
         // if id is set find object
         if ($this->option('id')) {
             $id =  $this->option('id');
             $object = Object::findOrFail($id);
+            $object_uid = $object->object_uid;
         }
 
         // if accession is set find object
         if ($this->option('uid')) {
-            $object_uid =  $this->option('object');
-            $object = Object::where('object_uid', '=', $object_uid)->firstOrFail();
+            $object_uid =  $this->option('uid');
         }
 
-        // if data is set to true harvest data
-        if (! $this->option('imagesOnly')) {
-            $source = $this->option('source');
-            $this->info('Processing data and images for "' . $object->object_title . '".');
-            $this->harvester->initialOrUpdateObject($object->object_uid, 'sync', $source);
+        if ($only == 'data' || $only == 'null') {
+            $this->harvester->initialOrUpdateObject($object_uid, $source);
         }
 
-        // if images is set to true harvest images
-        if ($this->option('imagesOnly')) {
-            $this->info('Processing images for "' . $object->object_title . '".');
-            config(['queue.default' => 'sync']);
+        if ($only == 'images'|| $only == 'null') {
             // Queue command to process images
-            $command = new HarvestImages($object->id);
+            $command = new HarvestImages($object_uid);
             $this->dispatch($command);
         }
     }

@@ -28,9 +28,9 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
      *
      * @return void
      */
-    public function __construct($object_id)
+    public function __construct($object_uid)
     {
-        $this->object_id = $object_id;
+        $this->object_uid = $object_uid;
         $this->sizes = config('harvester.image.sizes');
         $this->protected = config('harvester.image.protected');
         $this->deepzoom = null;
@@ -45,13 +45,14 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
      */
     public function handle()
     {
+        // get object
+        $object = Object::with('assets', 'assets.type', 'source')
+                    ->where('object_uid', '=', $this->object_uid)->firstOrFail();
+
         $this->deepzoom = DeepzoomFactory::create([
-            'path' => public_path('images/'.$this->object_id),
+            'path' => public_path('images/'.$object->id),
             'driver' => config('harvester.image.driver')
         ]);
-
-        // get object
-        $object = Object::with('assets', 'assets.type', 'source')->findOrFail($this->object_id);
 
         // delete directory if it exists
         if ($this->filesystem->has('images/'.$object->id)) {
