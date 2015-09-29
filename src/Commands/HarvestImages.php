@@ -111,6 +111,8 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
                 }
             }
         }
+        // touch object updated_at timestamp to record transaction
+        $object->touch();
     }
 
     public function generateAsset($img, $object_id, $asset, $type, $width, $height = NULL, $protected = NULL)
