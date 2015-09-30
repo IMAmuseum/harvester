@@ -8,8 +8,9 @@ namespace Imamuseum\Harvester\Contracts;
  */
 interface HarvesterInterface
 {
-    public function initialIDs($source);
-    public function updateIDs($source);
+    public function getAllIDs($source);
+    public function getUpdateIDs($source);
+    public function getObject($uid, $source);
     public function initialOrUpdateObject($uid, $source);
 
     // Part of the HavesterAbstract

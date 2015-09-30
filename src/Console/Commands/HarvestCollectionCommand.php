@@ -62,7 +62,7 @@ class HarvestCollectionCommand extends Command
         if ($this->option('initial')) $this->harvester->createTypes();
 
         // get all object_uid from piction
-        if ($this->option('initial')) $response = $this->harvester->initialIDs($source);
+        if ($this->option('initial')) $response = $this->harvester->getAllIDs($source);
         if ($this->option('refresh')) {
             $objects = \DB::table('objects')->lists('object_uid');
             $response = [
@@ -71,7 +71,7 @@ class HarvestCollectionCommand extends Command
             ];
             $response = (object)$response;
         }
-        if ($this->option('update')) $response = $this->harvester->updateIDs($source);
+        if ($this->option('update')) $response = $this->harvester->getUpdateIDs($source);
         $objectIDs = $response->results;
 
         if ( count($objectIDs) > 0) {
