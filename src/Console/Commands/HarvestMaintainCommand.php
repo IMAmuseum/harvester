@@ -75,43 +75,46 @@ class HarvestMaintainCommand extends Command
 
         // compare sourece assets to harvester assets
         foreach ($source_object_uids->results as $source_uid) {
-            // get source object
-            $source_object = $this->harvester->getObject($source_uid, $source);
-            // get source object assets
-            $source_asset_ids = [];
-            foreach ($source_object->images as $asset) {
-                $source_asset_ids[] = $asset->source_id;
-            }
-            // get harvester object
-            $harvester_object = Object::with(['source'])->where('object_uid', '=', $source_uid)->first();
-            // get harvester object
-            $harvester_asset_ids = [];
-            foreach ($harvester_object->source as $asset) {
-                $harvester_asset_ids[] = $asset->origin_id;
-            }
-            // get harvester_asset_ids not in the source_asset_ids array
-            $harvester_asset_delete = array_diff($harvester_asset_ids, $source_asset_ids);
-            // delete harvester source assets no longer found in the source
-            foreach($harvester_asset_delete as $origin_id) {
-                // remove source reference from database
-                Source::where('origin_id', '=', $origin_id)->delete();
-            }
-            // regenerate images associated with object
-            if (! empty($harvester_delete_queue) ) {
-                // Queue artisan command for data only
-                \Artisan::queue('harvest:object', ['--uid' => $source_uid, '--only' => 'data', '--source' => $source]);
-                // Queue command to process images
-                $command = new HarvestImages($source_uid);
-                $this->dispatch($command);
-            }
-            // get source_asset_ids not in the harvester_object_ids array
-            $harvester_asset_queue = array_diff($source_asset_ids, $harvester_asset_ids);
-            if (! empty($harvester_asset_queue) ) {
-                // Queue artisan command for data only
-                \Artisan::queue('harvest:object', ['--uid' => $source_uid, '--only' => 'data', '--source' => $source]);
-                // Queue command to process images
-                $command = new HarvestImages($source_uid);
-                $this->dispatch($command);
+            // if source uid has not already been queued
+            if (! in_array($source_uid, $harvester_queue)) {
+                // get source object
+                $source_object = $this->harvester->getObject($source_uid, $source);
+                // get source object assets
+                $source_asset_ids = [];
+                foreach ($source_object->images as $asset) {
+                    $source_asset_ids[] = $asset->source_id;
+                }
+                // get harvester object
+                $harvester_object = Object::with(['source'])->where('object_uid', '=', $source_uid)->first();
+                // get harvester object
+                $harvester_asset_ids = [];
+                foreach ($harvester_object->source as $asset) {
+                    $harvester_asset_ids[] = $asset->origin_id;
+                }
+                // get harvester_asset_ids not in the source_asset_ids array
+                $harvester_asset_delete = array_diff($harvester_asset_ids, $source_asset_ids);
+                // delete harvester source assets no longer found in the source
+                foreach($harvester_asset_delete as $origin_id) {
+                    // remove source reference from database
+                    Source::where('origin_id', '=', $origin_id)->delete();
+                }
+                // regenerate images associated with object
+                if (! empty($harvester_delete_queue) ) {
+                    // Queue artisan command for data only
+                    \Artisan::queue('harvest:object', ['--uid' => $source_uid, '--only' => 'data', '--source' => $source]);
+                    // Queue command to process images
+                    $command = new HarvestImages($source_uid);
+                    $this->dispatch($command);
+                }
+                // get source_asset_ids not in the harvester_object_ids array
+                $harvester_asset_queue = array_diff($source_asset_ids, $harvester_asset_ids);
+                if (! empty($harvester_asset_queue) ) {
+                    // Queue artisan command for data only
+                    \Artisan::queue('harvest:object', ['--uid' => $source_uid, '--only' => 'data', '--source' => $source]);
+                    // Queue command to process images
+                    $command = new HarvestImages($source_uid);
+                    $this->dispatch($command);
+                }
             }
         }
 
