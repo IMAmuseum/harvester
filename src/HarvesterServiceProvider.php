@@ -44,7 +44,8 @@ class HarvesterServiceProvider extends ServiceProvider
         $this->commands([
             'Imamuseum\Harvester\Console\Commands\HarvestCollectionCommand',
             'Imamuseum\Harvester\Console\Commands\HarvestObjectCommand',
-            'Imamuseum\Harvester\Console\Commands\HarvestExportCommand'
+            'Imamuseum\Harvester\Console\Commands\HarvestExportCommand',
+            'Imamuseum\Harvester\Console\Commands\HarvestMaintainCommand'
         ]);
     }
 }
