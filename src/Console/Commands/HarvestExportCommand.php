@@ -30,8 +30,8 @@ class HarvestExportCommand extends Command
     public function __construct()
     {
         $this->client = new Client();
-        $this->token = config('harvester.api.token');
-        $this->take = config('harvester.api.defaults.take');
+        $this->token = config('harvester.transaction.token');
+        $this->take = config('harvester.transaction.defaults.take');
         parent::__construct();
     }
 
@@ -56,7 +56,7 @@ class HarvestExportCommand extends Command
 
         // make requests to Drupal for paginated results
         while ($page <= $last_page) {
-            $res = $this->client->request('GET', config('harvester.api.sync_url'), [
+            $res = $this->client->request('GET', config('harvester.transaction.export_url'), [
                 'query' => ['token' => $this->token,
                             'action' => 'modified',
                             'take' => $this->take,

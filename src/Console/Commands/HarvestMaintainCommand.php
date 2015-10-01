@@ -75,7 +75,7 @@ class HarvestMaintainCommand extends Command
 
         // compare sourece assets to harvester assets
         foreach ($source_object_uids->results as $source_uid) {
-            // if source uid has not already been queued
+            // if source uid has not already been queued then compare assets
             if (! in_array($source_uid, $harvester_queue)) {
                 // get source object
                 $source_object = $this->harvester->getObject($source_uid, $source);

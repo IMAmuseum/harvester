@@ -7,7 +7,7 @@ use Imamuseum\Harvester\Models\Object;
 trait TransactionApiTrait
 {
     public function apiObjectQuery($table, $request) {
-        $params = config('harvester.api.params');
+        $params = config('harvester.transaction.valid_params');
 
         // check that all params are valid.
         foreach ($request->all() as $key => $value) {
@@ -16,18 +16,18 @@ trait TransactionApiTrait
             }
         }
 
-        $take = $request->has('take') ? $request->input('take') : config('harvester.api.defaults.take');
+        $take = $request->has('take') ? $request->input('take') : config('harvester.transaction.defaults.take');
 
         $query = Object::select();
 
         if ($request->has('action')) {
             $action = $request->input('action');
-            $actions = config('harvester.api.actions');
+            $actions = config('harvester.transaction.valid_actions');
             if (! in_array($action, $actions)) {
                 return ['error' => 'action=' . $action . ' is not a valid request parameter.'];
             }
             $query->whereHas('transactions', function ($q) use ($table, $request, $action, $actions) {
-                        $hours = $request->has('since') ? $request->input('since') : config('harvester.api.defaults.since');
+                        $hours = $request->has('since') ? $request->input('since') : config('harvester.transaction.defaults.since');
                         $since = Carbon::now()->subhours($hours);
                         $q->where('created_at', '>=', $since);
                         if ($request->has('action')) {

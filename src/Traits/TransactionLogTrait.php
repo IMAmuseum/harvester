@@ -10,7 +10,7 @@ trait TransactionLogTrait
     {
         $table = (new self)->getTable();
 
-        if (config('harvester.api.log')) {
+        if (config('harvester.transaction.log')) {
             static::created(function($item) use ($table) {
                 Transaction::log($table, 'created', $item->id);
             });
