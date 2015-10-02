@@ -13,7 +13,9 @@ class HarvestExportCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'harvest:export';
+    protected $signature = 'harvest:export
+                            {--modifed : Run export on modified transactions.}
+                            {--deleted : Run export on deleted transactions.}';
 
     /**
      * The console command description.
@@ -42,8 +44,11 @@ class HarvestExportCommand extends Command
      */
     public function handle()
     {
+        if ($this->option('modified')) $action = 'modified';
+        if ($this->option('deleted')) $action = 'deleted';
+
         // make a request to the api for created and updated objects
-        $response = $this->client->request('GET', config('app.url').'api/transactions/objects?action=modified');
+        $response = $this->client->request('GET', config('app.url').'api/transactions/objects?action='.$action);
 
         // get the response from the api
         $api = json_decode($response->getBody());
@@ -58,7 +63,7 @@ class HarvestExportCommand extends Command
         while ($page <= $last_page) {
             $res = $this->client->request('GET', config('harvester.transaction.export_url'), [
                 'query' => ['token' => $this->token,
-                            'action' => 'modified',
+                            'action' => $action,
                             'take' => $this->take,
                             'page' => $page,
                 ]
@@ -74,7 +79,9 @@ class HarvestExportCommand extends Command
 
         // empty the transaction table based on returned ids from Drupal
         foreach ($ids as $id) {
-            Transaction::where('table_id', '=', $id)->where('table', '=', 'objects')->whereIn('action', ['updated', 'created'])->delete();
+            if ($this->option('modified')) $transactions = ['updated', 'created'];
+            if ($this->option('deleted')) $transactions = ['deleted'];
+            Transaction::where('table_id', '=', $id)->where('table', '=', 'objects')->whereIn('action', $transactions)->delete();
         }
     }
 }
