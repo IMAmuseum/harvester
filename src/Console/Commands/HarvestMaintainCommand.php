@@ -18,7 +18,8 @@ class HarvestMaintainCommand extends Command
      * @var string
      */
     protected $signature = 'harvest:maintain
-                            {--source=null : Option for multi source data sync.}';
+                            {--source=null : Option for multi source data sync.}
+                            {--export : Export content to a third-party.}';
 
     /**
      * The console command description.
@@ -118,5 +119,9 @@ class HarvestMaintainCommand extends Command
             }
         }
 
+        // Queue the export command
+        if ($this->option('export')) {
+            \Artisan::queue('harvest:export');
+        }
     }
 }
