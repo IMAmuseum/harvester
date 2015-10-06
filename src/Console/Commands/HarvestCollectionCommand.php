@@ -115,7 +115,7 @@ class HarvestCollectionCommand extends Command
 
         // Queue the export command
         if ($this->option('export')) {
-            \Artisan::queue('harvest:export');
+            \Artisan::queue('harvest:export', ['--modified' => true]);
         }
     }
 }

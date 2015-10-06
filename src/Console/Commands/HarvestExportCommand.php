@@ -14,7 +14,7 @@ class HarvestExportCommand extends Command
      * @var string
      */
     protected $signature = 'harvest:export
-                            {--modifed : Run export on modified transactions.}
+                            {--modified : Run export on modified transactions.}
                             {--deleted : Run export on deleted transactions.}';
 
     /**
