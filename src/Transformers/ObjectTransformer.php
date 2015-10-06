@@ -45,7 +45,9 @@ class ObjectTransformer
                     'uri' => config('app.url') . $asset_item_value->asset_file_uri,
                 ];
             }
-            $asset_group[$asset_item_value->source->origin_id] = $asset_transform;
+            if (isset($asset_item_value->source->origin_id)) {
+                $asset_group[$asset_item_value->source->origin_id] = $asset_transform;
+            }
         }
 
         $dates = $this->transformDates($object->dates);
