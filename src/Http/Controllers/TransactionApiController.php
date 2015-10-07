@@ -33,9 +33,13 @@ class TransactionApiController extends Controller
             return response()->json($results['error'], 400);
         }
 
-        $results = $this->transformer->collection($results);
+        if ($request->input('action') != 'deleted') {
+            $results = $this->transformer->collection($results);
+        }
 
-        return $results;
+        if ($request->input('action') == 'deleted') {
+            $results = $this->transformer->deleted($results);
+        }
         return response()->json($results, 200);
     }
 

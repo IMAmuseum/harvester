@@ -5,6 +5,9 @@ namespace Imamuseum\Harvester\Console\Commands;
 use Illuminate\Console\Command;
 use Imamuseum\Harvester\Contracts\HarvesterInterface;
 use Imamuseum\Harvester\Commands\HarvestImages;
+use Imamuseum\Harvester\Models\Object;
+use Imamuseum\Harvester\Models\Source;
+use Imamuseum\Harvester\Models\Asset;
 
 class HarvestCollectionCommand extends Command
 {
@@ -51,6 +54,13 @@ class HarvestCollectionCommand extends Command
     {
         $source = $this->option('source');
         $only = $this->option('only');
+        $objects = \DB::table('objects')->lists('object_uid');
+        $objects = [
+            'results' => $objects,
+            'total' => count($objects)
+        ];
+        $objects = (object)$objects;
+        $deleted_uids = [];
 
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
         if ($this->option('refresh')) $this->info('Getting all object IDs for refresh.');
@@ -62,16 +72,29 @@ class HarvestCollectionCommand extends Command
         if ($this->option('initial')) $this->harvester->createTypes();
 
         // get all object_uid from piction
-        if ($this->option('initial')) $response = $this->harvester->getAllIDs($source);
+        if ($this->option('initial')) {
+            $response = $this->harvester->getAllIDs($source);
+        }
+
+        // set response to objects in harvester
         if ($this->option('refresh')) {
-            $objects = \DB::table('objects')->lists('object_uid');
+            $sourceResponse = $this->harvester->getAllIDs($source);
+            $intersectResponse = array_intersect($objects->results, $sourceResponse->results);
+            // take account of deleted items in source
             $response = [
-                'results' => $objects,
-                'total' => count($objects)
+                'results' => $intersectResponse,
+                'total' => count($intersectResponse)
             ];
             $response = (object)$response;
+            // get items that have been deleted from source
+            $deleted_uids = array_diff($objects->results, $sourceResponse->results);
         }
-        if ($this->option('update')) $response = $this->harvester->getUpdateIDs($source);
+
+        if ($this->option('update')) {
+            $response = $this->harvester->getUpdateIDs($source);
+            $deleted_uids = array_diff($objects->results, $response->results);
+        }
+
         $objectIDs = $response->results;
 
         if ( count($objectIDs) > 0) {
@@ -111,6 +134,15 @@ class HarvestCollectionCommand extends Command
             $this->info($this->timer($begin, $end));
         } else {
             $this->info('No objects have been updated.');
+        }
+
+        if (! empty($deleted_uids)) {
+            foreach ($deleted_uids as $object_uid) {
+                $object = Object::where('object_uid', '=', $object_uid)->first();
+                $object->delete();
+                Source::where('object_id', '=', $object->id)->delete();
+                Asset::where('object_id', '=', $object->id)->delete();
+            }
         }
 
         // Queue the export command
