@@ -101,7 +101,7 @@ class HarvestMaintainCommand extends Command
                 $harvester_delete_queue = false;
                 foreach($harvester_asset_delete as $origin_id) {
                     // remove source reference from database
-                    Source::where('origin_id', '=', $origin_id)->delete();
+                    Source::where('object_id', '=', $harvester_object->id)->delete();
                     Asset::where('object_id', '=', $harvester_object->id)->delete();
                     $harvester_delete_queue = true;
                 }
