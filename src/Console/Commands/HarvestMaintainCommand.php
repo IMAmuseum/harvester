@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Imamuseum\Harvester\Contracts\HarvesterInterface;
 use Imamuseum\Harvester\Models\Object;
 use Imamuseum\Harvester\Models\Source;
+use Imamuseum\Harvester\Models\Asset;
 use Imamuseum\Harvester\Commands\HarvestImages;
 
 class HarvestMaintainCommand extends Command
@@ -87,26 +88,33 @@ class HarvestMaintainCommand extends Command
                 }
                 // get harvester object
                 $harvester_object = Object::with(['source'])->where('object_uid', '=', $source_uid)->first();
+
                 // get harvester object
                 $harvester_asset_ids = [];
                 foreach ($harvester_object->source as $asset) {
                     $harvester_asset_ids[] = $asset->origin_id;
                 }
+
                 // get harvester_asset_ids not in the source_asset_ids array
                 $harvester_asset_delete = array_diff($harvester_asset_ids, $source_asset_ids);
                 // delete harvester source assets no longer found in the source
+                $harvester_delete_queue = false;
                 foreach($harvester_asset_delete as $origin_id) {
                     // remove source reference from database
                     Source::where('origin_id', '=', $origin_id)->delete();
+                    Asset::where('object_id', '=', $harvester_object->id)->delete();
+                    $harvester_delete_queue = true;
                 }
+
                 // regenerate images associated with object
-                if (! empty($harvester_delete_queue) ) {
+                if ($harvester_delete_queue) {
                     // Queue artisan command for data only
                     \Artisan::queue('harvest:object', ['--uid' => $source_uid, '--only' => 'data', '--source' => $source]);
                     // Queue command to process images
                     $command = new HarvestImages($source_uid);
                     $this->dispatch($command);
                 }
+
                 // get source_asset_ids not in the harvester_object_ids array
                 $harvester_asset_queue = array_diff($source_asset_ids, $harvester_asset_ids);
                 if (! empty($harvester_asset_queue) ) {
@@ -121,8 +129,8 @@ class HarvestMaintainCommand extends Command
 
         // Queue the export command
         if ($this->option('export')) {
-            \Artisan::queue('harvest:export', ['--modified' => true]);
             \Artisan::queue('harvest:export', ['--deleted' => true]);
+            \Artisan::queue('harvest:export', ['--modified' => true]);
         }
     }
 }
