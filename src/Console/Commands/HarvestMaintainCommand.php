@@ -62,8 +62,11 @@ class HarvestMaintainCommand extends Command
         $harvester_delete = array_diff($harvester_object_uids->results, $source_object_uids->results);
         // delete harvesterUIDs if not in sourceIDs
         foreach ($harvester_delete as $object_uid) {
-            Object::where('object_uid', '=', $object_uid)->delete();
+            $object = Object::where('object_uid', '=', $object_uid)->delete();
+            Source::where('object_id', '=', $object->id)->delete();
+            Asset::where('object_id', '=', $object->id)->delete();
         }
+
         // get source_object_uids not in the harvester_object_uids array
         $harvester_queue = array_diff($source_object_uids->results, $harvester_object_uids->results);
         // queue sourceIDs if not in harvesterIDs
