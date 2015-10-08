@@ -78,21 +78,31 @@ class HarvestCollectionCommand extends Command
 
         // set response to objects in harvester
         if ($this->option('refresh')) {
-            $sourceResponse = $this->harvester->getAllIDs($source);
-            $intersectResponse = array_intersect($objects->results, $sourceResponse->results);
-            // take account of deleted items in source
-            $response = [
-                'results' => $intersectResponse,
-                'total' => count($intersectResponse)
-            ];
-            $response = (object)$response;
+            $response = $this->harvester->getAllIDs($source);
+            // get object ids that are still part of piciton response
+            $intersectResponse = array_intersect($objects->results, $response->results);
             // get items that have been deleted from source
-            $deleted_uids = array_diff($objects->results, $sourceResponse->results);
+            $deleted_uids = array_diff($objects->results, $response->results);
+            // set response to intersectResponse
+            $response->results = $intersectResponse;
+            $response->total = count($intersectResponse);
         }
 
         if ($this->option('update')) {
+            // get updated ids from piciton
             $response = $this->harvester->getUpdateIDs($source);
-            $deleted_uids = array_diff($objects->results, $response->results);
+            // get all ids from piction
+            $allResponse = $this->harvester->getAllIDs($source);
+            // get deleted ids not in the all response
+            $deleted_uids = array_diff($objects->results, $allResponse->results);
+            // get ids from all response not currently in harvester
+            $added_uids = array_diff($allResponse->results, $objects->results);
+            // get ids that are also not in the updated response
+            $diffAdded_uids = array_diff($added_uids, $response->results);
+            // merge response with diff added
+            $response->results = array_merge($response->results, $diffAdded_uids);
+            // set count of response
+            $response->total = count($response->results);
         }
 
         $objectIDs = $response->results;
@@ -148,6 +158,7 @@ class HarvestCollectionCommand extends Command
         // Queue the export command
         if ($this->option('export')) {
             \Artisan::queue('harvest:export', ['--modified' => true]);
+            \Artisan::queue('harvest:export', ['--deleted' => true]);
         }
     }
 }
