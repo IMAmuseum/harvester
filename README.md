@@ -1,6 +1,6 @@
 ##Harvester Package
 
-###install via composer
+###Composer Setup
 ```json
 {
     "require": {
@@ -50,3 +50,12 @@ Push items off the queue -
 ```sh
 php artisan queue:listen
 ```
+
+### Artisan Commands
+```sh
+php artisan harvest:collection
+php artisan harvest:object
+php artisan harvest:export
+php artisan harvest:maintain
+```
+Use the --help flag after any command to view the available options with a description.
