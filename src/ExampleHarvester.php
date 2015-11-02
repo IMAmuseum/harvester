@@ -12,7 +12,7 @@ use Imamuseum\Harvester\Models\Object;
  */
 class ExampleHarvester extends HarvesterAbstract implements HarvesterInterface
 {
-    public function initialIDs($source)
+    public function getAllIDs($source = null)
     {
         // do something to get all object ids
         // return $objectIDs;
@@ -20,7 +20,7 @@ class ExampleHarvester extends HarvesterAbstract implements HarvesterInterface
         return (object) $objectIDs;
     }
 
-    public function updateIDs($source)
+    public function getUpdateIDs($source = null)
     {
         // do something to get all updated object ids
         // return $objectIDs;
@@ -28,9 +28,14 @@ class ExampleHarvester extends HarvesterAbstract implements HarvesterInterface
         return (object) $objectIDs;
     }
 
-    public function initialOrUpdateObject($uid, $queue, $source)
+    public function getObject($uid, $source = null)
     {
-        $faker = \Faker\Factory::create();
+        return \Faker\Factory::create();
+    }
+
+    public function initialOrUpdateObject($uid, $source = null)
+    {
+        $faker = $this->getObject($uid, $source);
         // get all data for a specific object $results
         // find object
         $object = Object::firstOrNew(['object_uid' => $uid]);
