@@ -1,4 +1,4 @@
-Harvester Package
+##Harvester Package
 
 ###install via composer
 ```json
@@ -14,3 +14,14 @@ Harvester Package
     ]
 }
 ```
+
+## Laravel Specific
+
+### Service Provider
+In `config\app.php` add to the autoloaded providers -
+```php
+Imamuseum\Harvester\HarvesterServiceProvider::class,
+```
+
+```sh
+php artisan vendor:publish
