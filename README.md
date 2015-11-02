@@ -15,8 +15,6 @@
 }
 ```
 
-## Laravel Specific
-
 ### Service Provider
 In `config/app.php` add to the autoloaded providers -
 ```php
