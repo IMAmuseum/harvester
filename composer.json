@@ -6,9 +6,9 @@
         }
     },
     "require": {
-        "jeremytubbs/deepzoom": "dev-master",
+        "jeremytubbs/deepzoom": "0.5.*",
         "guzzlehttp/guzzle": "~6.0"
     },
-    "minimum-stability" : "dev",
+    "minimum-stability" : "stable",
     "prefer-stable" : true
 }
