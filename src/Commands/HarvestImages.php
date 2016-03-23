@@ -74,7 +74,7 @@ class HarvestImages extends Job implements ShouldQueue
                         $asset_type = AssetType::where('asset_type_name', '=', strtolower($key))->first();
                         if ($asset_type) {
                             $asset_type_id = $asset_type->id;
-                            $imgPath = 'images/'.$object->id.'/'.$value;
+                            $imgPath = 'images/'.$object->id.'/'.$asset->source_sequence.'/'.basename($value);
                             $this->createAsset($imgPath, $asset_type_id, $object->id, $asset->source_sequence, $asset->id);
                         }
                     }
