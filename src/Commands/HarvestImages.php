@@ -70,12 +70,12 @@ class HarvestImages extends Job implements ShouldQueue
                 if($object->can_zoom == 1) {
                     // get result back form deepzoom
                     $result = $this->deepzoom->makeTiles($asset->source_uri, 'dzi' . $asset->source_sequence, $asset->source_sequence);
-                    foreach ($result['data'] as $key => $value) {
+                    foreach ($result['data']['output'] as $key => $value) {
                         $asset_type = AssetType::where('asset_type_name', '=', strtolower($key))->first();
                         if ($asset_type) {
-                        $asset_type_id = $asset_type->id;
-                        $imgPath = 'images/'.$object->id.'/'.$value;
-                        $this->createAsset($imgPath, $asset_type_id, $object->id, $asset->source_sequence, $asset->id);
+                            $asset_type_id = $asset_type->id;
+                            $imgPath = 'images/'.$object->id.'/'.$value;
+                            $this->createAsset($imgPath, $asset_type_id, $object->id, $asset->source_sequence, $asset->id);
                         }
                     }
                 }
