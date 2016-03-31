@@ -97,9 +97,9 @@ return [
     'transaction' => [
         'log' => true,
 
-        'export_url' => env('HARVEST_EXPORT_URL', 'http://collections2.denverartmuseum.org/collection/harvester'),
+        'export_url' => env('HARVEST_EXPORT_URL'),
 
-        'token' => env('HARVEST_TOKEN', 'rkv1vQt6BKygRB8CUXBLHU0HyAJ0Tthi'),
+        'token' => env('HARVEST_TOKEN'),
 
         'valid_params' => ['action', 'since', 'take', 'page'],
 
