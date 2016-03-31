@@ -1,11 +1,22 @@
 {
     "name": "imamuseum/harvester",
+    "description": "Online collection data harvester middleware.",
+    "license": "MIT",
+    "authors" : [
+        {
+            "name": "IMA Lab",
+            "email": "imalab@imamuseum.org",
+            "homepage": "http://lab.imamuseum.org"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Imamuseum\\Harvester\\": "src/"
         }
     },
     "require": {
+        "php": ">=5.5.9",
+        "illuminate/support": "5.1.*",
         "jeremytubbs/deepzoom": "0.5.*",
         "guzzlehttp/guzzle": "~6.0"
     },

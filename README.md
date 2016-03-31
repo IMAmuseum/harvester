@@ -37,7 +37,7 @@ php artisan vendor:publish
 ```
 
 Run Migrations -
-```sh 
+```sh
 php artisan migrate
 ```
 
@@ -59,3 +59,7 @@ php artisan harvest:export
 php artisan harvest:maintain
 ```
 Use the --help flag after any command to view the available options with a description.
+
+### License
+
+The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT).
