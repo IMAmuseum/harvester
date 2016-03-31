@@ -2,17 +2,9 @@
 
 ###Composer Setup
 ```json
-{
     "require": {
-        "imamuseum/harvester": "dev-master@dev"
+        "imamuseum/harvester": "^1.0"
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url": "https://bitbucket.org/imalab/harvester.git"
-        }
-    ]
-}
 ```
 
 ### Service Provider
