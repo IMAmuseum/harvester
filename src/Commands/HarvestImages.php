@@ -17,7 +17,7 @@ use Imamuseum\Harvester\Models\Asset;
 use Imamuseum\Harvester\Models\Source;
 
 
-class HarvestImages extends Job implements SelfHandling, ShouldQueue
+class HarvestImages extends Job implements ShouldQueue
 {
     use InteractsWithQueue;
 
@@ -69,11 +69,12 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
                 // create deepzoom tiles
                 if($object->can_zoom == 1) {
                     // get result back form deepzoom
-                    $result = $this->deepzoom->makeTiles($asset->source_uri, 'dzi'.$asset->source_sequence, $asset->source_sequence);
-                    foreach ($result['data'] as $key => $value) {
-                        $asset_type_id = AssetType::where('asset_type_name', '=', strtolower($key))->pluck('id');
-                        if ($asset_type_id) {
-                            $imgPath = 'images/'.$object->id.'/'.$value;
+                    $result = $this->deepzoom->makeTiles($asset->source_uri, 'dzi' . $asset->source_sequence, $asset->source_sequence);
+                    foreach ($result['data']['output'] as $key => $value) {
+                        $asset_type = AssetType::where('asset_type_name', '=', strtolower($key))->first();
+                        if ($asset_type) {
+                            $asset_type_id = $asset_type->id;
+                            $imgPath = 'images/'.$object->id.'/'.$asset->source_sequence.'/'.basename($value);
                             $this->createAsset($imgPath, $asset_type_id, $object->id, $asset->source_sequence, $asset->id);
                         }
                     }
@@ -117,19 +118,22 @@ class HarvestImages extends Job implements SelfHandling, ShouldQueue
 
     public function generateAsset($img, $object_id, $asset, $type, $width, $height = NULL, $protected = NULL)
     {
-        $temp = clone $img;
-        $asset_type_id = AssetType::where('asset_type_name', '=', $type)->pluck('id');
-        // prevent possible upsizing
-        $temp->resize($width, $height, function ($constraint) {
-            $constraint->aspectRatio();
-            $constraint->upsize();
-        });
+        $asset_type = AssetType::where('asset_type_name', '=', strtolower($type))->first();
+        if ($asset_type) {
+            $asset_type_id = $asset_type->id;
+            $temp = clone $img;
+            // prevent possible upsizing
+            $temp->resize($width, $height, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
 
-        $temp->encode('jpg', 100);
-        $imgPath = 'images/'.$object_id.'/'.$asset->source_sequence.'/'.$asset->source_sequence.'_'.$type.'.jpg';
-        $this->filesystem->put($imgPath, $temp);
-        $this->createAsset($imgPath, $asset_type_id, $object_id, $asset->source_sequence, $asset->id);
-        unset($temp);
+            $temp->encode('jpg', 100);
+            $imgPath = 'images/'.$object_id.'/'.$asset->source_sequence.'/'.$asset->source_sequence.'_'.$type.'.jpg';
+            $this->filesystem->put($imgPath, $temp);
+            $this->createAsset($imgPath, $asset_type_id, $object_id, $asset->source_sequence, $asset->id);
+            unset($temp);
+        }
     }
 
     public function createAsset($imgPath, $asset_type_id, $object_id, $sequence, $source_id)
