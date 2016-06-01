@@ -9,7 +9,7 @@ use Imamuseum\Harvester\Contracts\HarvesterInterface;
 
 class HarvestObjectCommand extends Command
 {
-    use \Illuminate\Foundation\Bus\DispatchesJobs;
+    use \Illuminate\Foundation\Bus\DispatchesCommands;
     /**
      * The name and signature of the console command.
      *

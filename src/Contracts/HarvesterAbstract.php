@@ -11,6 +11,7 @@ abstract class HarvesterAbstract {
     {
         // get config array for harvester types
         $configTypes = config('harvester.types');
+
         // loop through types and insert
         foreach ($configTypes as $keyType => $valueType) {
             foreach($valueType as $type) {
@@ -85,20 +86,21 @@ abstract class HarvesterAbstract {
             $type_id = \DB::table('term_types')->where('term_type_name', '=', $type)->pluck('id');
             foreach ($contents as $content) {
                 if ($content != '') {
-                    $content_id = \DB::table('terms')->where('term_type_id', '=', $type_id[0])->where('term', '=', $content)->pluck('id');
+                    $content_id = \DB::table('terms')->where('term_type_id', '=', $type_id)->where('term', '=', $content)->pluck('id');
+
                     // in no content insert new content
-                    if (empty($content_id)) {
+                    if (is_null($content_id)) {
                         $new_content_id = \DB::table('terms')->insertGetId([
                             'term' => $content,
-                            'term_type_id' =>  $type_id[0]
+                            'term_type_id' =>  $type_id
                         ]);
                         // append new id to field ID array
                         $field_ids[] = $new_content_id;
                     }
 
                     // if content already exists add field ID to array
-                    if (! empty($content_id)) {
-                        $field_ids[] = $content_id[0];
+                    if (! is_null($content_id)) {
+                        $field_ids[] = $content_id;
                     }
                 }
             }
@@ -114,21 +116,21 @@ abstract class HarvesterAbstract {
             $type_id = \DB::table('date_types')->where('date_type_name', '=', $type)->pluck('id');
 
             if ($contents['date'] != '') {
-                $content_id = \DB::table('dates')->where('date_type_id', '=', $type_id[0])->where('date', '=', $contents['date'])->pluck('id');
+                $content_id = \DB::table('dates')->where('date_type_id', '=', $type_id)->where('date', '=', $contents['date'])->pluck('id');
 
-                if (empty($content_id)) {
+                if (is_null($content_id)) {
                     $new_content_id = \DB::table('dates')->insertGetId([
                         'date' => $contents['date'],
                         'date_at' => isset($contents['date_at']) ? $contents['date_at'] : null,
-                        'date_type_id' =>  $type_id[0]
+                        'date_type_id' =>  $type_id
                     ]);
                     // append new id to field ID array
                     $field_ids[] = $new_content_id;
                 }
 
                 // if content already exists add field ID to array
-                if (! empty($content_id)) {
-                    $field_ids[] = $content_id[0];
+                if (! is_null($content_id)) {
+                    $field_ids[] = $content_id;
                 }
             }
         }
@@ -142,22 +144,22 @@ abstract class HarvesterAbstract {
         foreach($fields as $type => $contents) {
             $type_id = \DB::table('location_types')->where('location_type_name', '=', $type)->pluck('id');
             if ($contents['location'] != '') {
-                $content_id = \DB::table('locations')->where('location_type_id', '=', $type_id[0])->where('location', '=', $contents['location'])->pluck('id');
+                $content_id = \DB::table('locations')->where('location_type_id', '=', $type_id)->where('location', '=', $contents['location'])->pluck('id');
 
-                if (empty($content_id)) {
+                if (is_null($content_id)) {
                     $new_content_id = \DB::table('locations')->insertGetId([
                         'location' => $contents['location'],
                         'latitude' => isset($contents['latitude']) ? $contents['latitude'] : null,
                         'longitude' => isset($contents['longitude']) ? $contents['longitude'] : null,
-                        'location_type_id' =>  $type_id[0]
+                        'location_type_id' =>  $type_id
                     ]);
                     // append new id to field ID array
                     $field_ids[] = $new_content_id;
                 }
 
                 // if content already exists add field ID to array
-                if (! empty($content_id)) {
-                    $field_ids[] = $content_id[0];
+                if (! is_null($content_id)) {
+                    $field_ids[] = $content_id;
                 }
             }
         }
@@ -169,7 +171,8 @@ abstract class HarvesterAbstract {
         foreach ($texts as $key => $value) {
             if ($value != '') {
                 $text_type_id = \DB::table('text_types')->where('text_type_name', '=', $key)->pluck('id');
-                $text = \Imamuseum\Harvester\Models\Text::where('text_type_id', '=', $text_type_id[0])->where('object_id', '=', $object_id)->first();
+                $text = \Imamuseum\Harvester\Models\Text::where('text_type_id', '=', $text_type_id)->where('object_id', '=', $object_id)->first();
+
                 if ($text) {
                     $text->text = $value;
                 }
@@ -178,7 +181,7 @@ abstract class HarvesterAbstract {
                     $text = new \Imamuseum\Harvester\Models\Text();
                     $text->text = $value;
                     $text->object_id = $object_id;
-                    $text->text_type_id = $text_type_id[0];
+                    $text->text_type_id = $text_type_id;
                 }
 
                 $text->save();

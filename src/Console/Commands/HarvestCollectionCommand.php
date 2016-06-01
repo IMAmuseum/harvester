@@ -11,8 +11,7 @@ use Imamuseum\Harvester\Models\Asset;
 
 class HarvestCollectionCommand extends Command
 {
-    use \Imamuseum\Harvester\Traits\TimerTrait;
-    use \Illuminate\Foundation\Bus\DispatchesJobs;
+    use \Illuminate\Foundation\Bus\DispatchesCommands;
 
     /**
      * The name and signature of the console command.
@@ -54,7 +53,7 @@ class HarvestCollectionCommand extends Command
     {
         $source = $this->option('source');
         $only = $this->option('only');
-        $objects = \DB::table('objects')->pluck('object_uid');
+        $objects = \DB::table('objects')->lists('object_uid');
         $objects = [
             'results' => $objects,
             'total' => count($objects)
@@ -65,8 +64,6 @@ class HarvestCollectionCommand extends Command
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
         if ($this->option('refresh')) $this->info('Getting all object IDs for refresh.');
         if ($this->option('update')) $this->info('Getting all updated object IDs.');
-        // begin timer
-        $begin = microtime(true);
 
         // create extended types maybe should of a harvester config
         if ($this->option('initial')) $this->harvester->createTypes();
@@ -110,7 +107,9 @@ class HarvestCollectionCommand extends Command
         if ( count($objectIDs) > 0) {
             // start progress display in console
             $this->output->progressStart($response->total);
+
             foreach ($objectIDs as $objectID) {
+
                 if ($only == 'null') {
                     // Queue artisan command for data only
                     \Artisan::queue('harvest:object', ['--uid' => $objectID, '--only' => 'data', '--source' => $source]);
@@ -133,13 +132,8 @@ class HarvestCollectionCommand extends Command
                 // advance progress display in console
                 $this->output->progressAdvance();
             }
-
-            // calculate time elapsed for command
-            $end = microtime(true);
             // complete progress display in console
             $this->output->progressFinish();
-            // dispaly total time in console
-            $this->info($this->timer($begin, $end));
         } else {
             $this->info('No objects have been updated.');
         }

@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Object extends Model
 {
-    use \Imamuseum\Harvester\Traits\TransactionLogTrait;
-
     protected $guarded = [];
 
     public function actors()

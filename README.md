@@ -47,7 +47,6 @@ php artisan queue:listen
 ```sh
 php artisan harvest:collection
 php artisan harvest:object
-php artisan harvest:export
 php artisan harvest:maintain
 ```
 Use the --help flag after any command to view the available options with a description.
