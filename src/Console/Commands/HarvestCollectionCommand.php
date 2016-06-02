@@ -11,7 +11,6 @@ use Imamuseum\Harvester\Models\Asset;
 
 class HarvestCollectionCommand extends Command
 {
-    use \Imamuseum\Harvester\Traits\TimerTrait;
     use \Illuminate\Foundation\Bus\DispatchesJobs;
 
     /**
@@ -65,8 +64,6 @@ class HarvestCollectionCommand extends Command
         if ($this->option('initial')) $this->info('Getting all object IDs for seeding.');
         if ($this->option('refresh')) $this->info('Getting all object IDs for refresh.');
         if ($this->option('update')) $this->info('Getting all updated object IDs.');
-        // begin timer
-        $begin = microtime(true);
 
         // create extended types maybe should of a harvester config
         if ($this->option('initial')) $this->harvester->createTypes();
@@ -134,12 +131,8 @@ class HarvestCollectionCommand extends Command
                 $this->output->progressAdvance();
             }
 
-            // calculate time elapsed for command
-            $end = microtime(true);
             // complete progress display in console
             $this->output->progressFinish();
-            // dispaly total time in console
-            $this->info($this->timer($begin, $end));
         } else {
             $this->info('No objects have been updated.');
         }
